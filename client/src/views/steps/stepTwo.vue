@@ -339,10 +339,11 @@ export default {
     top: 0;
     left: 0;
     width: 100%;
-    min-height: 100vh;
+    height: 100vh;
     background: linear-gradient(135deg, #e8d5ff 0%, #d4b3ff 100%);
     padding: 40px 20px;
     overflow-y: auto;
+    overflow-x: hidden;
 }
 
 .page-title {

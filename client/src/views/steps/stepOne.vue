@@ -68,7 +68,7 @@ export default {
     top: 0;
     left: 0;
     width: 100%;
-    min-height: 100vh;
+    height: 100vh;
     background: linear-gradient(135deg, #e8d5ff 0%, #d4b3ff 100%);
     display: flex;
     flex-direction: column;
@@ -77,6 +77,7 @@ export default {
     padding: 40px 20px;
     padding-top: 40px;
     overflow-y: auto;
+    overflow-x: hidden;
 }
 
 .page-title {

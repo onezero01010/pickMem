@@ -1,29 +1,26 @@
 <template>
     <div class="step-three">
-        <div class="row p-0 m-0 h-100 align-items-center">
-            <div class="col-md-8">
-                <div class="d-flex justify-content-center mb-3">
-                    <basic-frame v-if="frame" :columns="parseInt(frame.split('x')[0])" :rows="parseInt(frame.split('x')[1])"></basic-frame>
-                </div>
-                <div class="d-flex justify-content-center">
-                    <strong class="text-danger">우측의 이미지를 클릭해서 골라주세요.</strong>
-                </div>
+        <h1 class="page-title">살레네컷</h1>
+        <div class="content-container">
+            <div class="title-container">
+                <h2 class="section-title">사진 선택</h2>
+                <p class="instruction-text">순서대로 {{rows * columns}}장의 사진을 선택하세요</p>
             </div>
-            <div class="col-md-4">
-                <div class="m-auto">
-                    <div>이미지 리스트</div>
-                    <hr>
-                    <div class="images text-center">
-                        <div class="mb-3" v-for="(id, idx) of Object.keys(images)" :key="idx">
-                            <i v-if="Object.values(getSelectList).includes(id)" class="mdi mdi-check-circle mr-2" style="font-size: 30px;"></i>
-                            <img :class="`m-auto mr-3 ${Object.values(getSelectList).includes(id) ? 'selected' : ''} ${rows <= columns ? 'previewImg-horizontal' : 'previewImg-vertical'}`" :src="images[id]" alt="" :id="`${id}`" @click="selectToClick(getSelectTargetLen, id, images[id])" draggable="false">
-                            <hr>
-                        </div>
+            <div class="photo-grid">
+                <div 
+                    v-for="(id, idx) of Object.keys(images)" 
+                    :key="idx" 
+                    class="photo-item"
+                    :class="{ 'selected': Object.values(getSelectList).includes(id) }"
+                    @click="selectToClick(getSelectTargetLen, id, images[id])"
+                >
+                    <img :src="images[id]" alt="사진" draggable="false">
+                    <div v-if="Object.values(getSelectList).includes(id)" class="selection-badge">
+                        {{ getSelectionNumber(id) }}
                     </div>
                 </div>
             </div>
         </div>
-        
     </div>
 </template>
 
@@ -78,12 +75,38 @@ export default {
 
     methods: {
         selectToClick(idx, id, src) {
-            if (Object.values(this.getSelectList).includes(id)) return;
-
             this.selectTarget = this.$store.getters.getTargets;
-            let table = this.frame.split('x');
+            this.selectList = this.$store.getters.getTargetList;
+            
+            // 이미 선택된 사진이면 선택 해제
+            if (Object.values(this.getSelectList).includes(id)) {
+                // 선택 해제 처리
+                for (let key in this.selectList) {
+                    if (this.selectList[key] === id) {
+                        const position = parseInt(key);
+                        // 해당 위치의 타겟 제거
+                        this.$delete(this.selectTarget, position);
+                        this.$delete(this.selectList, key);
+                        // 큐에 위치 추가 (정렬)
+                        this.queue = this.$store.getters.getRemoveQueues;
+                        this.queue.push(position);
+                        this.queue.sort((a, b) => a - b);
+                        this.$store.commit('setUpdateQueue', this.queue);
+                        this.$store.commit('setTargets', this.selectTarget);
+                        this.$store.commit('setTmpTargets', this.selectTarget);
+                        this.$store.commit('setTargetList', this.selectList);
+                        break;
+                    }
+                }
+                this.selectTarget = this.$store.getters.getTargets;
+                this.$store.commit('setNext', false);
+                return;
+            }
 
-            if (Object.keys(this.selectTarget).length == (parseInt(table[0]) * parseInt(table[1]))) {
+            let table = this.frame.split('x');
+            const maxCount = parseInt(table[0]) * parseInt(table[1]);
+
+            if (Object.keys(this.selectTarget).length >= maxCount) {
                 this.$Utils.toast('이미 모두 골랐어요.')
                 return;
             } else {
@@ -100,8 +123,24 @@ export default {
                 this.selectTarget = this.$store.getters.getTargets;
             }
 
-            if (Object.keys(this.$store.getters.getTargets).length == this.rows * this.columns) this.$store.commit('setNext', true);
-            else this.$store.commit('setNext', false);
+            if (Object.keys(this.$store.getters.getTargets).length == this.rows * this.columns) {
+                this.$store.commit('setNext', true);
+                // 4개 사진 다 선택되면 자동으로 다음 페이지로 이동
+                setTimeout(() => {
+                    this.$emit('photos-selected');
+                }, 500);
+            } else {
+                this.$store.commit('setNext', false);
+            }
+        },
+        getSelectionNumber(id) {
+            const list = this.getSelectList;
+            for (let key in list) {
+                if (list[key] === id) {
+                    return parseInt(key);
+                }
+            }
+            return null;
         },
     },
     computed: {
@@ -116,33 +155,117 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.list-horizontal {
-    width: 200px;
+.step-three {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #e8d5ff 0%, #d4b3ff 100%);
+    padding: 40px 20px;
+    overflow-y: auto;
 }
 
-.list-vertical {
-    width: 150px;
+.page-title {
+    font-size: 48px;
+    font-weight: bold;
+    color: #ff6b9d;
+    margin: 0 auto 30px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    max-width: 1500px;
 }
 
-.previewImg-horizontal {
-    height: 150px;
-    width: 200px;
+.content-container {
+    background: white;
+    border-radius: 20px;
+    padding: 40px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    max-width: 1500px;
+    margin: 0 auto;
+    margin-top: 0;
 }
 
-.previewImg-vertical {
-    height: 200px;
-    width: 150px;
+.title-container {
+    text-align: center;
+    margin-bottom: 30px;
 }
 
-.images {
-    max-height: 600px;
-    overflow-y: scroll;
-    overflow-x: hidden;
-    white-space: nowrap;
+.section-title {
+    font-size: 28px;
+    font-weight: 600;
+    color: #8b5cf6;
+    margin: 0 0 10px 0;
 }
 
-.selected {
-    background-color: grey;
-    opacity: 0.7;
+.instruction-text {
+    font-size: 16px;
+    color: #666;
+    margin: 0;
+}
+
+.photo-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    margin-top: 30px;
+}
+
+.photo-item {
+    position: relative;
+    aspect-ratio: 1;
+    border-radius: 10px;
+    overflow: hidden;
+    cursor: pointer;
+    border: 3px solid transparent;
+    transition: all 0.3s ease;
+    
+    &:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+    
+    &.selected {
+        border-color: #ff6b9d;
+        box-shadow: 0 0 0 2px #ff6b9d;
+    }
+    
+    img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+}
+
+.selection-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #ff6b9d;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    font-weight: bold;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+@media (max-width: 768px) {
+    .page-title {
+        font-size: 36px;
+    }
+    
+    .photo-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+    }
+    
+    .content-container {
+        padding: 20px;
+    }
 }
 </style>

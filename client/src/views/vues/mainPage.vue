@@ -1,12 +1,15 @@
 <template>
-    <div class="main-page d-flex justify-content-center align-items-center" @click="init();$router.push('/pickMem')">
-        <div class="text-center">
-            <div class="title">
-                <div><strong>Pick The Moment</strong></div>    
+    <div class="main-page">
+        <div class="content-container">
+            <div class="title-container">
+                <h1 class="main-title">살레네컷</h1>
+                <p class="subtitle">무제한으로 원하는 모습을 찍고 꾸미세요!</p>
             </div>
-            <div class="sub-title mb-5"><small>무제한으로 원하는 모습을 찍고 꾸미세요!</small></div>
-
-            <span>Click to Start</span>
+            <div class="start-button-container">
+                <button class="start-btn" @click="init();$router.push('/pickMem')">
+                    시작하기
+                </button>
+            </div>
         </div>
     </div>    
 </template>
@@ -25,12 +28,92 @@ export default {
 }
 </script>
 
-<style scoped>
-.title {
-    font-size: 60px;
+<style lang="scss" scoped>
+.main-page {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #e8d5ff 0%, #d4b3ff 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
 }
 
-.sub-title {
-    font-size: 25px;
+.content-container {
+    background: white;
+    border-radius: 20px;
+    padding: 60px 40px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    max-width: 800px;
+    width: 100%;
+    text-align: center;
+}
+
+.title-container {
+    margin-bottom: 40px;
+}
+
+.main-title {
+    font-size: 48px;
+    font-weight: bold;
+    color: #ff6b9d;
+    margin: 0 0 20px 0;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.subtitle {
+    font-size: 24px;
+    font-weight: 600;
+    color: #8b5cf6;
+    margin: 0;
+}
+
+.start-button-container {
+    margin-top: 30px;
+}
+
+.start-btn {
+    padding: 16px 48px;
+    background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 20px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+
+    &:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
+    }
+
+    &:active {
+        transform: translateY(-1px);
+    }
+}
+
+@media (max-width: 768px) {
+    .content-container {
+        padding: 40px 30px;
+    }
+
+    .main-title {
+        font-size: 36px;
+    }
+
+    .subtitle {
+        font-size: 20px;
+    }
+
+    .start-btn {
+        padding: 14px 40px;
+        font-size: 18px;
+    }
 }
 </style>

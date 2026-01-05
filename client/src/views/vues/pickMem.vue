@@ -1,17 +1,17 @@
 <template>
     <div class="pick-mem h-100">
         <div class="content" style="overflow-y: auto;">
-            <nav-bar class="nav" :msg="msg[step]" @on-next="nextStep" @on-previous="previousStep" :step="step"></nav-bar>
+            <nav-bar v-if="step > 3" class="nav" :msg="msg[step]" @on-next="nextStep" @on-previous="previousStep" :step="step"></nav-bar>
             <div class="body container">
-                <step-one :class="{'moveFromRight': currDirection == 'right', 'moveFromLeft': currDirection == 'left'}" class="step-0" v-if="step==0"></step-one>
-                <step-two :class="{'moveFromRight': currDirection == 'right', 'moveFromLeft': currDirection == 'left'}" class="step-1" v-else-if="step==1"></step-two>
-                <step-three :class="{'moveFromRight': currDirection == 'right', 'moveFromLeft': currDirection == 'left'}" class="step-2" v-else-if="step==2"></step-three>
-                <step-four :class="{'moveFromRight': currDirection == 'right', 'moveFromLeft': currDirection == 'left'}" class="step-3" v-else-if="step==3"></step-four>
-                <step-five :class="{'moveFromRight': currDirection == 'right', 'moveFromLeft': currDirection == 'left'}" class="step-4" v-else-if="step==4"></step-five>
-                <step-result :class="{'moveFromRight': currDirection == 'right', 'moveFromLeft': currDirection == 'left'}" class="step-5" v-else @on-previous="previousStep"></step-result>
+                <step-one class="step-0" v-if="step==0" @frame-selected="nextStep"></step-one>
+                <step-two class="step-1" v-else-if="step==1" @photos-complete="nextStep"></step-two>
+                <step-three class="step-2" v-else-if="step==2" @photos-selected="nextStep"></step-three>
+                <step-four class="step-3" v-else-if="step==3" @on-previous="previousStep"></step-four>
+                <step-five class="step-4" v-else-if="step==4"></step-five>
+                <step-result class="step-5" v-else @on-previous="previousStep"></step-result>
             </div>
         </div>
-        <footer-bar class="footer"></footer-bar>
+        <footer-bar v-if="step > 3" class="footer"></footer-bar>
     </div>
     
 </template>
@@ -48,15 +48,12 @@ export default {
                 '마음가는 대로 액자를 꾸며봐요!',
                 '이번에는 사진을 꾸며볼까요',
                 '마음에 드시나요?'
-            ],
-            currDirection: 'right'
+            ]
         }
     },
     methods: {
         nextStep() {
             let canNext = this.$store.getters.getNext;
-
-            this.currDirection = 'right';
 
             if (this.step == 0 && !canNext) {
                 this.$Utils.toast('액자를 골라주세요.')
@@ -78,8 +75,6 @@ export default {
         },
 
         previousStep() {
-            this.currDirection = 'left';
-
             if (this.step == 0) this.$router.push('/');
 
             this.step -= 1;
@@ -91,7 +86,11 @@ export default {
 <style lang="scss">
 
 .body {
-    margin-top: 100px;
+    margin-top: 0;
+}
+
+.step-0 {
+    margin-top: 0 !important;
 }
 
 .step {
@@ -119,25 +118,5 @@ export default {
 
 .custom-toast {
     background-color: red;
-}
-
-.moveFromRight {
-    animation: moveFromRight 1s ease both;
-
-    @keyframes moveFromRight {
-        from { 
-            transform: translateX(100%);
-        }
-    }   
-}
-
-.moveFromLeft {
-    animation: moveFromLeft 1s ease both;
-
-    @keyframes moveFromLeft {
-        from { 
-            transform: translateX(-100%);
-        }
-    }
 }
 </style>

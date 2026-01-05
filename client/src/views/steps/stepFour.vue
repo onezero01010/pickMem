@@ -1,28 +1,15 @@
     <template>
     <div class="step-four">
-        <div class="row m-0 p-0 mb-5">
-            <div class="col-md-8 m-auto">
-                <div class="text-center mb-3">
-                    <div class="row">
-                        <div class="col-3"></div>
-                        <div class="col-5 ml-5 mb-2 text-center">
-                            <button class="btn-custom mr-3" @click="canvas.discardActiveObject().renderAll();isOpen=true">미 리 보 기</button>
-                            <!-- <button v-if="isWork" class="btn-custom mr-2" @click="saveWork">저 장 하 기</button> -->
+        <h1 class="page-title">살레네컷</h1>
+        <div class="content-container">
+            <div class="title-container">
+                <h2 class="section-title">장식하기</h2>
+                <p class="instruction-text">배경색, 패턴, 스티커로 사진을 꾸며보세요</p>
                         </div>
-                        <div class="col-3">
-                            <div class="h-100 alert-icon d-flex justify-content-center align-items-center">
-                                <span><i class="mdi mdi-alert-circle-outline"></i></span> &nbsp;
-                                <small>주의사항</small>
-                                <div class="alert-msg">
-                                    <div class="text-center text-danger">
-                                        <strong>실제 효과들은 사진 뒤에 표시됩니다. <br> 미리보기 버튼을 통해 확인할 수 있습니다.</strong>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="mb-3 d-flex justify-content-center">
+            
+            <div class="main-content">
+                <div class="canvas-section">
+                    <div class="canvas-wrapper" ref="canvasWrapper">
                     <div ref="pic" :class="`outter-frame-${parseInt(frame.split('x')[0])}-${parseInt(frame.split('x')[1])}`" style="position: absolute; padding: 20px; padding-right: 0px;">
                         <div :class="`row p-0 m-0`" v-for="(row, rowIdx) of rowCnt" :key="rowIdx">
                             <div :class="`pl-0 pr-0 inner-frame inner-frame-${columns}-${rows}`" v-for="(col, colIdx) of colCnt" :key="colIdx">
@@ -32,68 +19,55 @@
                             </div>
                         </div>
                     </div>
-                    <div ref="deco" @drop="drop" @dragover.prevent>
+                        <div ref="deco" style="position: absolute;">
                         <canvas v-if="frame" :class="`outter-frame outter-frame-${parseInt(frame.split('x')[0])}-${parseInt(frame.split('x')[1])}`" ref="canvas"></canvas>
                     </div>
                 </div>
-                <div class="mb-3 text-center" v-if="isWork"><strong>Delete 키로 스티커를 지울 수 있습니다.</strong></div>
+                </div>
+                
+                <div class="sidebar-section">
+                    <div class="message-section">
+                        <h3 class="message-title">메시지 추가</h3>
+                        <input 
+                            type="text" 
+                            v-model="messageText" 
+                            class="message-input" 
+                            placeholder="우린 살레시안"
+                        >
+                        <button class="apply-btn" @click="addMessage">적용</button>
             </div>
-            <div class="col-md-4">
-                <span :class="{ 'target': isMode=='bg' }" class="p-2" @click="isWork=false;setWorkMode();isMode='bg'">배경색</span> | 
-                <span :class="{ 'target': isMode=='sticker' }" class="p-2" @click="isWork=true;setWorkMode();isMode='sticker'">스티커</span>
-                <hr>
-                <div :style="`height: 600px;overflow-y: auto;`">
-                    <div v-if="isMode=='bg'">
+                    <div class="sidebar-content">
                         <div v-for="(value, theme) in bg" :key="theme">
-                            <div class="mb-3"><strong>{{theme}} 테마</strong></div>
-                            <div class="row m-0 p-0 mb-3">
-                                <div :class="{ 'target': targetColor == color }" class="col-md-3 m-0 p-0 mb-3 pt-1 pb-1" v-for="(color, idx) of value" :key="idx">
-                                    <div class="bg m-auto" :style="{'background-color': color}" @click="selectBg(color)"></div>
-                                </div>
-                            </div>
-                        </div>
-                        <div v-for="(value, theme) in pattern" :key="theme">
-                            <div class="mb-3"><strong>패턴</strong></div>
-                            <div class="row m-0 p-0 mb-5">
-                                <div :id="`pattern_${item}`" :class="{ 'target': targetPattern == `pattern_${item}` }" class="col-md-3 m-0 p-0 mb-3 pt-1 pb-1 text-center" v-for="(item, idx) of value" :key="idx">
-                                    <img :ref="`pattern_${item}`" class="pattern" :src="require(`@/assets/pattern/pattern_${item}.png`)" @click="selectPattern(`pattern_${item}`)" draggable="false">
+                            <div class="color-grid">
+                                <div 
+                                    :class="{ 'selected': targetColor == color }" 
+                                    class="color-item" 
+                                    v-for="(color, idx) of value" 
+                                    :key="idx"
+                                    @click="selectBg(color)"
+                                >
+                                    <div class="bg" :style="{'background-color': color}"></div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div v-else-if="isMode=='sticker'">
-                        <div class="mb-5">
-                            <button :class="{'btn-primary': isText, 'btn-outline-primary': !isText}" class="btn mr-3" @click="isText=!isText">텍스트</button>
-                            <input type="number" v-model="fontSize">
-                        </div>
-                        <div>
-                            <div v-for="(value, theme) in sticker" :key="theme">
-                                <div class="mb-3"><strong>{{theme}} 테마</strong></div>
-                                <div class="row m-0 p-0 mb-5">
-                                    <div :id="`${theme}_${item}`" :class="{ 'target': targetSticker == `${theme}_${item}` }" class="col-3 mb-3 text-center" v-for="(item, idx) of value" :key="idx" @click="isSticker=!isSticker;selectSticker(`${theme}_${item}`)">
-                                        <img :ref="`${theme}_${item}`" class="sticker" :src="require(`@/assets/stickers/${theme}_${item}.png`)">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                    <div class="save-section">
+                        <button class="save-btn" @click="saveImage">저장하기</button>
+                        <button class="home-btn" @click="goHome">처음으로</button>
+                    </div>
                     </div>
                 </div>    
             </div>
-        </div>
-        <preview-modal v-if="isOpen" @on-close="isOpen=false" :columns="parseInt(frame.split('x')[0])" :rows="parseInt(frame.split('x')[1])"></preview-modal>
     </div>
 </template>
 
 <script>
 import { fabric } from 'fabric'
-import previewModal from './vues/previewModal.vue'
-import previewFrame from './frames/previewFrame.vue'
+import html2canvas from 'html2canvas'
 
 export default {
     name: 'stepFour',
     components: {
-        previewModal,
-        previewFrame,
     },
     data() {
         return {
@@ -102,35 +76,22 @@ export default {
             rowCnt: [],
             colCnt: [],
             images: {},
-            targetSticker: null,
             targetColor: '#00ff0000',
             targetPattern: null,
             frame: null,
-            isMode: 'bg',
-            isWork: false,
-            isOpen: false,
-            isText: false,
-            isSticker: false,
             canvasHeight: null,
             canvasWidth: null,
             canvas: null,
-            fontSize: 16,
             contentHeight: 500,
-            sticker: {
-                'cute_handdrawn': [],
-                'cute_natural_doodle': [],
-                'flower_leaf': [],
-            },
+            messageText: '',
+            fontSize: 24,
             pattern: {
                 'basic': [],
             },
             bg: {
                 'simple': ['#F2F2F3', '#A6A6A6', '#595959', '#262626', '#0D0D0D'],
-                'modern': ['#131B26', '#D9B95B', '#D9C484', '#F2ECE4', '#D97D5B'],
-                'warm': ['#D9C077', '#F29F05', '#D97904', '#BF4904', '#F2F2F2'],
                 'astro': ['#F25E7A', '#4A2B8C', '#5155A6', '#05F2DB', '#F2E963'],
                 'cartoon': ['#636AF2', '#41A0F2', '#A2DCF2', '#04D98B', '#F2E205'],
-                'ancient': ['#1D5948', '#F2BF5E', '#A6864B', '#F2D091', '#732509'],
             }
         }
     },
@@ -139,13 +100,9 @@ export default {
     },
     mounted() {
         this.init();
-        window.addEventListener('keydown', this.setKeydownEvent);
     },
     beforeDestroy() {
         this.saveWork();
-    },
-    destroyed() {
-        window.removeEventListener('keydown', this.setKeydownEvent);
     },
     methods: {
         async init() {
@@ -156,9 +113,6 @@ export default {
             this.columns = table.columns;
             this.rowCnt = Array.from({length: table.rows}, (v, i) => i + 1);
             this.colCnt = Array.from({length: table.columns}, (v, i) => i + 1);
-            this.sticker.cute_handdrawn = Array.from({length: 6}, (v, i) => i + 1);
-            this.sticker.cute_natural_doodle = Array.from({length: 12}, (v, i) => i + 1);
-            this.sticker.flower_leaf = Array.from({length: 38}, (v, i) => i + 1);
             this.pattern.basic = Array.from({length: 9}, (v, i) => i + 1);
 
             this.canvasHeight = this.$refs.canvas.clientHeight;
@@ -169,7 +123,6 @@ export default {
 
             if (this.$store.getters.getCanvas) {
                 await this.loadCanvasToJSON();
-                this.setCanvasOption();
                 this.targetColor = this.canvas.backgroundColor;
                 this.canvas.renderAll();
             }
@@ -184,104 +137,12 @@ export default {
             })
         },
         setMouseEvent() {
-            this.canvas.on('mouse:down', (e) => {
-                if (!this.isWork) return;
-
-                if (this.isText) {
-                    this.createObj('text', e.pointer.x, e.pointer.y);
-                } else if (this.isSticker) {
-                    this.createObj('sticker', e.pointer.x, e.pointer.y);
-                } else if (e.target) {
-                    // e.target.opacity = 0.8;
-                    this.canvas.renderAll();
-                }
-            }).on('mouse:up', (e) => {
-                if (e.target) {
-                    e.target.opacity = 1;
-                    this.canvas.renderAll();
-                }
-            }).on('selection:created', (e) => {
+            this.canvas.on('selection:created', (e) => {
                 if (e.selected.length > 1) this.canvas.discardActiveObject().renderAll();
             }).on('selection:cleared', (e) => {
-                console.log(e.target, 'cleared')
                 this.saveWork();
                 this.canvas.discardActiveObject().renderAll();
             })
-        },
-        setKeydownEvent(e) {
-            const allowKeys = [' ', 'DELETE']
-            let pressKey = e.key.toUpperCase();
-
-            if (!allowKeys.includes(pressKey)) return false
-                
-            if (pressKey == 'DELETE') {
-                let targetObj = this.canvas.getActiveObject();
-
-                this.canvas.remove(targetObj);
-                this.canvas.renderAll();
-
-                this.saveWork();
-            }
-        },
-        createObj(type, left, top) {
-            if (type == 'text') {
-                let textBox = new fabric.Textbox('내용을 입력하세요.', {
-                    left: left,
-                    top: top,
-                    width: 150,
-                    fontSize: this.fontSize,
-                    textAlign: 'left',
-                    id: `textBox_${(new Date).getDate()}`
-                });
-
-                this.canvas.add(textBox);
-                this.canvas.renderAll();
-                
-                this.setTextEvent(textBox);
-
-                this.isText = false;
-            } else if (type == 'sticker') {
-                const sticker = this.$refs[this.targetSticker][0]
-                let image = new fabric.Image(sticker, {
-                    left: left,
-                    top: top,
-                    borderColor: 'red',
-                    cornerColor: 'green',
-                    cornerSize: 10,
-                    transparentCorners: false,
-                });
-                
-                image.left = left - (image.width / 2);
-                image.top = top - (image.height / 2);
-
-                this.canvas.add(image);
-                this.canvas.renderAll();
-
-                this.isSticker = false;
-                this.targetSticker = null;
-            }
-
-            this.saveWork();
-        },
-        createDragObj(type, target, left, top) {
-            if (type == 'sticker') {
-                fabric.Image.fromURL(target,  (img) => {
-                    img.left = left - (img.width / 2);
-                    img.top = top - (img.height / 2);
-                    img.borderColor = 'red',
-                    img.cornerColor = 'green',
-                    img.cornerSize = 10,
-                    img.transparentCorners = false,
-
-                    this.canvas.add(img);
-                    this.canvas.renderAll();
-                    
-                    this.saveWork();
-                });
-
-                this.isSticker = false;
-                this.targetSticker = null;
-            }
         },
         saveWork() {
             this.canvas.discardActiveObject().renderAll();
@@ -290,68 +151,12 @@ export default {
             this.$store.commit('setCanvas', JSON.stringify(this.canvas.toObject(['id', 'borderColor', 'cornerColor', 'cornerSize', 'transparentCorners'])));
             this.$store.commit('setFrameImg', this.canvas.toDataURL({ format: 'image/png' }));
         },
-        setTextEvent(textBox) {
-            textBox.setControlsVisibility({
-                mt: false, mb: false, 
-                bl: false, br: false, 
-                tl: false, tr: false,
-            });
-
-            textBox.on('selected', (e) => {
-                this.canvas.renderAll();
-            });
-
-            textBox.on("editing:entered", (e) =>{
-                let obj = this.canvas.getActiveObject();
-
-                if (obj.text == "내용을 입력하세요."){
-                    obj.selectAll();
-                    obj.removeChars();
-                }
-            });
-
-            textBox.on(("changed"), () => {
-
-                let actualWidth = textBox.scaleX * textBox.width;
-                let largest = this.canvas.getActiveObject().__lineWidths.filter(item => item)[0] ? this.canvas.getActiveObject().__lineWidths.filter(item => item)[0] : 1;
-                let tryWidth = (largest + 15) * textBox.scaleX;
-
-                this.canvas.getActiveObject().set("width", tryWidth);
-
-                if ((textBox.left + actualWidth) >= this.canvas.width - 10) {
-                    textBox.set("width", this.canvas.width - left - 10)
-                }
-
-                this.canvas.renderAll();
-            });
-
-            textBox.on(("modified"), () => {
-                this.canvas.renderAll();
-            });
-        },
-        setCanvasOption() {
-            this.canvas.getObjects().map(item => {
-                if (item.id.includes('textBox')) {
-                    this.setTextEvent(item);
-                }
-            })
-        },
-        selectSticker(id) {
-            if (this.targetSticker == id) this.targetSticker = null;
-            else this.targetSticker = id;
-        },
         setWorkMode() {
             this.canvas.discardActiveObject().renderAll();
-
-            if (this.isWork) {
-                this.$refs.pic.style['z-index'] = 1;
-                this.$refs.deco.style['z-index'] = 2;
-                this.$refs.deco.style['opacity'] = 0.8;
-            } else {
+            // 배경 모드: 사진이 위에 보이도록 (사진이 보이고, canvas 배경은 뒤에서 보임)
                 this.$refs.pic.style['z-index'] = 2;
                 this.$refs.deco.style['z-index'] = 1;
                 this.$refs.deco.style['opacity'] = 1;
-            }
         },
         selectBg(color) {
             if (this.targetColor == color) {
@@ -364,7 +169,7 @@ export default {
             }
             
             this.canvas.renderAll();
-
+            this.setWorkMode(); // 배경이 바로 보이도록 z-index 업데이트
             this.saveWork();
         },
         selectPattern(pattern) {
@@ -372,6 +177,7 @@ export default {
                 this.canvas.backgroundColor = '#FFF';
                 this.targetColor = '#FFF';
                 this.targetPattern = null;
+                this.setWorkMode(); // 배경이 바로 보이도록 z-index 업데이트
                 this.saveWork();
             } else {
                 this.targetColor = '#FFF'
@@ -379,16 +185,221 @@ export default {
 
                 this.canvas.setBackgroundColor({ source: this.$refs[this.targetPattern][0].src, repeat: 'repeat' }, () => {
                     this.canvas.renderAll();
+                    this.setWorkMode(); // 배경이 바로 보이도록 z-index 업데이트
                     this.saveWork();
                 });
             }
 
             this.canvas.renderAll();
         },
+        addMessage() {
+            if (!this.messageText.trim()) return;
 
-        drop(e) {
-            const dragImg = e.dataTransfer.getData('text/plain');
-            this.createDragObj('sticker', dragImg, e.offsetX, e.offsetY);
+            // 기존 메시지 텍스트 박스가 있으면 제거
+            const existingTexts = this.canvas.getObjects().filter(obj => obj.id && obj.id.includes('message'));
+            existingTexts.forEach(text => this.canvas.remove(text));
+
+            // 배경색에 따른 반대색 계산
+            const bgColor = this.canvas.backgroundColor;
+            const textColor = this.getContrastColor(bgColor);
+
+            // 프레임 아래 부분에 텍스트 추가 (canvas 높이의 90% 위치)
+            const textBox = new fabric.Textbox(this.messageText, {
+                left: this.canvas.width / 2,
+                top: this.canvas.height * 0.95,
+                width: this.canvas.width - 40,
+                fontSize: this.fontSize,
+                textAlign: 'center',
+                originX: 'center',
+                originY: 'center',
+                fill: textColor,
+                id: `message_${Date.now()}`
+            });
+
+            this.canvas.add(textBox);
+            this.canvas.renderAll();
+            this.saveWork();
+        },
+        getContrastColor(bgColor) {
+            // 배경색이 없거나 흰색이면 검정색 반환
+            if (!bgColor || bgColor === '#FFF' || bgColor === '#FFFFFF' || bgColor === 'white' || bgColor === 'transparent') {
+                return '#000000';
+            }
+
+            // 패턴 이미지인 경우 (객체로 들어옴)
+            if (typeof bgColor === 'object' && bgColor.source) {
+                // 패턴은 보통 밝은 배경이므로 검정색 반환
+                return '#000000';
+            }
+
+            // HEX 색상인 경우
+            if (typeof bgColor === 'string' && bgColor.startsWith('#')) {
+                // # 제거
+                const hex = bgColor.replace('#', '');
+                
+                // RGB 값 추출
+                let r, g, b;
+                if (hex.length === 3) {
+                    r = parseInt(hex[0] + hex[0], 16);
+                    g = parseInt(hex[1] + hex[1], 16);
+                    b = parseInt(hex[2] + hex[2], 16);
+                } else if (hex.length === 6) {
+                    r = parseInt(hex.substring(0, 2), 16);
+                    g = parseInt(hex.substring(2, 4), 16);
+                    b = parseInt(hex.substring(4, 6), 16);
+                } else {
+                    return '#000000';
+                }
+
+                // 밝기 계산 (상대적 밝기)
+                const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+
+                // 밝기가 0.5보다 크면 어두운 텍스트, 작으면 밝은 텍스트
+                return luminance > 0.5 ? '#000000' : '#FFFFFF';
+            }
+
+            // 기본값: 검정색
+            return '#000000';
+        },
+        async saveImage() {
+            // canvas와 사진을 합쳐서 이미지로 저장
+            this.saveWork();
+            
+            try {
+                // 새로운 고해상도 canvas 생성
+                const scale = 2;
+                const exportCanvas = document.createElement('canvas');
+                exportCanvas.width = this.canvas.width * scale;
+                exportCanvas.height = this.canvas.height * scale;
+                const ctx = exportCanvas.getContext('2d');
+                
+                // 배경색/패턴 그리기
+                if (this.canvas.backgroundColor) {
+                    if (typeof this.canvas.backgroundColor === 'string') {
+                        ctx.fillStyle = this.canvas.backgroundColor;
+                        ctx.fillRect(0, 0, exportCanvas.width, exportCanvas.height);
+                    } else if (this.canvas.backgroundColor && this.canvas.backgroundColor.source) {
+                        // 패턴인 경우
+                        const patternImg = new Image();
+                        patternImg.crossOrigin = 'anonymous';
+                        await new Promise((resolve, reject) => {
+                            patternImg.onload = () => {
+                                const pattern = ctx.createPattern(patternImg, 'repeat');
+                                ctx.fillStyle = pattern;
+                                ctx.fillRect(0, 0, exportCanvas.width, exportCanvas.height);
+                                resolve();
+                            };
+                            patternImg.onerror = reject;
+                            patternImg.src = this.canvas.backgroundColor.source;
+                        });
+                    } else {
+                        ctx.fillStyle = '#FFFFFF';
+                        ctx.fillRect(0, 0, exportCanvas.width, exportCanvas.height);
+                    }
+                } else {
+                    ctx.fillStyle = '#FFFFFF';
+                    ctx.fillRect(0, 0, exportCanvas.width, exportCanvas.height);
+                }
+                
+                // 사진들 그리기 - DOM에서 직접 가져오기
+                const picElement = this.$refs.pic;
+                if (picElement) {
+                    const innerFrames = picElement.querySelectorAll('.inner-frame');
+                    console.log('찾은 inner-frame 개수:', innerFrames.length);
+                    
+                    for (let i = 0; i < innerFrames.length; i++) {
+                        const frame = innerFrames[i];
+                        const img = frame.querySelector('img');
+                        
+                        if (img && img.src) {
+                            console.log(`사진 ${i + 1} 로딩 시작:`, img.src);
+                            
+                            const imgElement = new Image();
+                            imgElement.crossOrigin = 'anonymous';
+                            
+                            await new Promise((resolve, reject) => {
+                                const timeout = setTimeout(() => {
+                                    console.error('이미지 로드 타임아웃:', img.src);
+                                    resolve(); // 타임아웃해도 계속 진행
+                                }, 5000);
+                                
+                                imgElement.onload = () => {
+                                    clearTimeout(timeout);
+                                    const frameRect = frame.getBoundingClientRect();
+                                    const canvasRect = this.$refs.canvas.getBoundingClientRect();
+                                    
+                                    // canvas 기준으로 상대 위치 계산
+                                    const x = (frameRect.left - canvasRect.left) * scale;
+                                    const y = (frameRect.top - canvasRect.top) * scale;
+                                    const width = frameRect.width * scale;
+                                    const height = frameRect.height * scale;
+                                    
+                                    console.log(`사진 ${i + 1} 그리기:`, { x, y, width, height });
+                                    ctx.drawImage(imgElement, x, y, width, height);
+                                    resolve();
+                                };
+                                
+                                imgElement.onerror = (error) => {
+                                    clearTimeout(timeout);
+                                    console.error('이미지 로드 실패:', img.src, error);
+                                    resolve(); // 실패해도 계속 진행
+                                };
+                                
+                                imgElement.src = img.src;
+                            });
+                        } else {
+                            console.warn(`사진 ${i + 1}을 찾을 수 없습니다.`);
+                        }
+                    }
+                }
+                
+                // canvas의 텍스트와 다른 객체들만 그리기 (배경 제외)
+                const originalBackground = this.canvas.backgroundColor;
+                this.canvas.backgroundColor = 'transparent';
+                this.canvas.renderAll();
+                
+                const canvasDataURL = this.canvas.toDataURL({ 
+                    format: 'png',
+                    multiplier: scale,
+                    backgroundColor: 'transparent'
+                });
+                
+                // 원래 배경 복원
+                this.canvas.backgroundColor = originalBackground;
+                this.canvas.renderAll();
+                
+                const canvasImg = new Image();
+                await new Promise((resolve, reject) => {
+                    canvasImg.onload = () => {
+                        ctx.drawImage(canvasImg, 0, 0);
+                        resolve();
+                    };
+                    canvasImg.onerror = reject;
+                    canvasImg.src = canvasDataURL;
+                });
+                
+                // blob으로 변환하여 다운로드
+                exportCanvas.toBlob((blob) => {
+                    if (blob) {
+                        const url = URL.createObjectURL(blob);
+                        const link = document.createElement('a');
+                        link.download = `pickMem_${Date.now()}.png`;
+                        link.href = url;
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                        URL.revokeObjectURL(url);
+                    } else {
+                        alert('이미지 저장에 실패했습니다.');
+                    }
+                }, 'image/png');
+            } catch (error) {
+                console.error('이미지 저장 오류:', error);
+                alert('이미지 저장 중 오류가 발생했습니다.');
+            }
+        },
+        goHome() {
+            this.$router.push('/');
         },
     },
     computed: {
@@ -400,10 +411,314 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.frame {
-    height: 630px;
+.step-four {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #e8d5ff 0%, #d4b3ff 100%);
+    padding: 40px 20px;
+    overflow-y: auto;
 }
 
+.page-title {
+    font-size: 48px;
+    font-weight: bold;
+    color: #ff6b9d;
+    margin: 0 auto 30px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    max-width: 1500px;
+}
+
+.content-container {
+    background: white;
+    border-radius: 20px;
+    padding: 40px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    max-width: 1500px;
+    margin: 0 auto;
+}
+
+.title-container {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.section-title {
+    font-size: 28px;
+    font-weight: 600;
+    color: #8b5cf6;
+    margin: 0 0 10px 0;
+}
+
+.instruction-text {
+    font-size: 16px;
+    color: #666;
+    margin: 0;
+}
+
+.main-content {
+    display: flex;
+    gap: 30px;
+    align-items: flex-start;
+}
+
+.canvas-section {
+    flex: 1;
+    display: flex;
+    margin-top: 40px;
+    flex-direction: column;
+    align-items: center;
+}
+
+.canvas-wrapper {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.help-text {
+    text-align: center;
+    color: #666;
+    font-size: 14px;
+    margin-top: 10px;
+
+    p {
+        margin: 0;
+    }
+}
+
+.sidebar-section {
+    width: 350px;
+    background: #f9fafb;
+    border-radius: 15px;
+    padding: 20px;
+    margin-right: 200px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.message-section {
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid #e5e7eb;
+}
+
+.message-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #374151;
+    text-align: center;
+    margin: 0 0 15px 0;
+}
+
+.message-input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid #d1d5db;
+    border-radius: 10px;
+    font-size: 16px;
+    color: #374151;
+    margin-bottom: 15px;
+    box-sizing: border-box;
+    transition: border-color 0.3s ease;
+
+    &:focus {
+        outline: none;
+        border-color: #8b5cf6;
+    }
+
+    &::placeholder {
+        color: #9ca3af;
+    }
+}
+
+.apply-btn {
+    width: 100%;
+    padding: 12px 24px;
+    background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+
+    &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(139, 92, 246, 0.4);
+    }
+
+    &:active {
+        transform: translateY(0);
+    }
+}
+
+.sidebar-content {
+    max-height: 600px;
+    overflow-y: auto;
+    padding-right: 5px;
+    margin-bottom: 20px;
+
+    &::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    &::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: #8b5cf6;
+        border-radius: 10px;
+    }
+}
+
+.save-section {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 2px solid #e5e7eb;
+    display: flex;
+    gap: 10px;
+}
+
+.save-btn {
+    flex: 1;
+    padding: 14px 24px;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+
+    &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
+    }
+
+    &:active {
+        transform: translateY(0);
+    }
+}
+
+.home-btn {
+    flex: 1;
+    padding: 14px 24px;
+    background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(107, 114, 128, 0.3);
+
+    &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(107, 114, 128, 0.4);
+    }
+
+    &:active {
+        transform: translateY(0);
+    }
+}
+
+.theme-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #8b5cf6;
+    margin-bottom: 15px;
+    margin-top: 20px;
+
+    &:first-child {
+        margin-top: 0;
+    }
+}
+
+.color-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.color-item {
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    padding: 5px;
+
+    &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    &.selected {
+        border: 3px solid #8b5cf6;
+        box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.3);
+    }
+}
+
+.bg {
+    height: 100%;
+    width: 100%;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.pattern-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 30px;
+}
+
+.pattern-item {
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    padding: 5px;
+    background: white;
+    border: 2px solid transparent;
+
+    &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        border-color: #8b5cf6;
+    }
+
+    &.selected {
+        border-color: #8b5cf6;
+        box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.3);
+    }
+}
+
+.pattern {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 6px;
+}
+
+// Canvas frame styles
 img {
     object-position: center center;
     object-fit: cover;
@@ -411,21 +726,9 @@ img {
     width: 100%;
 }
 
-.bg {
-    height: 40px;
-    width: 40px;
-}
-
-.sticker, .pattern {
-    object-fit: cover;
-    height: 40px;
-    width: 40px;
-}
-
 .outter-frame {
     padding-right: 0px;
     padding-bottom: 0px;
-    box-shadow: 0.5px 0.5px 1.5px black;
 
     &-1-1 {
         height: 350px;
@@ -440,7 +743,7 @@ img {
         width: 220px;
     }
     &-1-4 {
-        height: 560px;
+        height: 480px;
         width: 180px;
     }
     &-2-1 {
@@ -465,7 +768,7 @@ img {
     }
     &-4-1 {
         height: 180px;
-        width: 560px;
+        width: 480px;
     }
 }
 
@@ -474,7 +777,6 @@ img {
     margin-bottom: 20px;
     margin-right: 20px;
     background: #FFF;
-    box-shadow: 0.5px 0.5px 1.5px black;
 
     &-1-1 {
         height: 270px;
@@ -489,7 +791,7 @@ img {
         width: 180px;
     }
     &-1-4 {
-        height: 105px;
+        height: 84px;
         width: 140px;
     }
     &-2-1 {
@@ -514,35 +816,31 @@ img {
     }
     &-4-1 {
         height: 140px;
-        width: 105px;
+        width: 84px;
     }
 }
 
-.target {
-    background-color: grey;
+@media (max-width: 1200px) {
+    .main-content {
+        flex-direction: column;
+    }
+
+    .sidebar-section {
+        width: 100%;
+    }
 }
 
-.alert-msg {
-    position: absolute;
-    opacity: 0;
-}
-
-.alert-icon:hover .alert-msg {
+@media (max-width: 768px) {
+    .content-container {
     padding: 20px;
-    width: 400px;
-    top: -10;
-    left: -10;
-    z-index: 3;
-    background-color: #FFF;
-    border: 1px black solid;
+    }
 
-    animation: moveFromRight 0.7s ease both;
+    .color-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
 
-    @keyframes moveFromRight {
-        to {
-            opacity: 1;
-            transform: translateY(10%);
-        }
+    .pattern-grid {
+        grid-template-columns: repeat(4, 1fr);
     }   
 }
 </style>

@@ -1,104 +1,61 @@
 <template>
     <div class="step-two">
-        <div class="mb-5">
-            <div v-if="isLoading" style="font-size: 20px;height: 600px;">
+        <h1 class="page-title">살레네컷</h1>
+        <div class="content-container">
+            <div v-if="isLoading" class="loading-container">
                 <div class="text-center">
-                    <div><i class="mdi mdi-loading mdi-spin"></i></div>
+                    <div><i class="mdi mdi-loading mdi-spin" style="font-size: 40px;"></i></div>
                     <small>카메라 설정 중</small>
                 </div>
             </div>
-            <div v-else-if="!isLoading && canPhoto" class="d-flex justify-content-center align-items-center">
-                <div v-if="rows <= columns" class="camera-horizontal camera-frame">
-                    <div class="col-custom h-100 text-center d-flex align-items-center justify-content-center" style="width: 50px;color: #FFF;font-size: 20px;">
-                        <div v-if="isPhotoTaken">마<br>음<br>에<br><br>들<br>면<br><br>다<br>음<br>으<br>로<br>!</div>
-                        <div v-else-if="getImageLen < 6">{{6 - getImageLen}}<br>장<br><br>남<br>았<br>어<br>요<br>!</div>
-                        <div v-else>이<br>제<br><br>꾸<br>미<br>러<br><br>가<br>볼<br>까<br>요<br>?</div>
-                    </div>
-                    <div class="col-custom">
-                        <video v-show="!isPhotoTaken" ref="camera" width="600" height="450" autoplay></video>
-                        <canvas v-show="isPhotoTaken" id="photoTaken" ref="canvas" width="600" height="450"></canvas>
-                    </div>
-                    <div v-if="!isShotPhoto" class="col-custom" style="width: 100px;">
-                        <div class="w-100">
-                            <div class="d-flex justify-content-center align-items-center" style="height: 75px">
-                                <i v-if="isPhotoTaken" class="mdi mdi-trash-can" style="font-size: 30px;color: #FFF;" @click="isPhotoTaken=false"></i>
-                            </div>
-                            <div class="d-flex justify-content-center align-items-center" style="height: 300px;">
-                                <div v-if="getImageLen < 6" class="takePic d-flex justify-content-center align-items-center" v-on="isPhotoTaken ? { click:() => { saveImage(); isPhotoTaken=false; }} : { click:() => { takePhoto(); }}">
-                                    <div class="takePic-inner">
-                                        <div v-if="isPhotoTaken" class="h-100 d-flex justify-content-center align-items-center">
-                                            <i class="mdi mdi-tray-plus" style="font-size: 20px;"></i>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div v-else-if="getImageLen == 6" class="takePic d-flex justify-content-center align-items-center" style="font-size: 25px;">
-                                    <i class="mdi mdi-restore" @click="isOpen=true;"></i>
-                                </div>
-                            </div>
-                            <div style="height: 75px;"></div>
+            <div v-else-if="!isLoading && canPhoto" class="camera-container">
+                <div class="title-container">
+                    <h2 class="section-title">사진 촬영</h2>
+                </div>
+                <div class="phone-frame">
+                    <div class="phone-notch"></div>
+                    <div class="camera-content">
+                        <video v-show="!isPhotoTaken" ref="camera" :class="{'camera-mirror': isMirrored}" autoplay></video>
+                        <canvas v-show="isPhotoTaken" ref="canvas"></canvas>
+                        <div v-if="isCountdown && !isPaused" class="countdown-overlay">
+                            <div class="countdown-number">{{countdown}}</div>
+                            <button class="btn btn-instant" @click="instantCapture">즉시 촬영</button>
                         </div>
                     </div>
                 </div>
-                <div v-else class="camera-vertical camera-frame">
-                    <div class="d-flex justify-content-center align-items-center" style="height: 50px;color: #FFF;font-size: 20px;">
-                        <div v-if="isPhotoTaken">마음에 들면 다음 사진찍어볼까</div>
-                        <div v-else-if="getImageLen < 6">{{6 - getImageLen}} 장 남았어요!</div>
-                        <div v-else>이제 꾸미러 가볼까요?</div>
-                    </div>
-                    <div>
-                        <video v-show="!isPhotoTaken" ref="camera" width="450" height="600" autoplay></video>
-                        <canvas v-show="isPhotoTaken" id="photoTaken" ref="canvas" width="450" height="600"></canvas>
-                    </div>
-                    <div v-if="!isShotPhoto">
-                        <div class="d-flex justify-content-center align-items-center">
-                            <div class="row m-0 p-0 w-100" style="height: 100px;">
-                                <div class="col-2"></div>
-                                <div class="col-8 d-flex align-items-center justify-content-center">
-                                    <div v-if="getImageLen == 6" class="takePic d-flex justify-content-center align-items-center" style="font-size: 25px;">
-                                        <i class="mdi mdi-restore" @click="isOpen=true;"></i>
-                                    </div>
-                                    <div v-else class="takePic d-flex justify-content-center align-items-center" v-on="isPhotoTaken ? { click:() => { saveImage(); isPhotoTaken=false; }} : { click:() => { takePhoto(); }}">
-                                        <div class="takePic-inner">
-                                            <div v-if="isPhotoTaken" class="h-100 d-flex justify-content-center align-items-center">
-                                                <i class="mdi mdi-tray-plus" style="font-size: 20px;"></i>
-                                            </div>    
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-2 d-flex align-items-center justify-content-center">
-                                    <i v-if="isPhotoTaken" class="mdi mdi-trash-can" style="font-size: 30px;color: #FFF;" @click="isPhotoTaken=false"></i>
-                                </div>
-                            </div>
-                        </div>
+                <div class="control-buttons">
+                    <button class="btn btn-photo" @click="handlePhotoClick">
+                        사진촬영
+                    </button>
+                    <button class="btn btn-mirror" @click="toggleMirror">
+                        좌우반전
+                    </button>
+                    <button class="btn btn-switch" @click="switchCamera">
+                        카메라 전환
+                    </button>
+                    <button class="btn btn-restart" @click="togglePause">
+                        {{ isPaused ? '다시시작' : '일시정지' }}
+                    </button>
+                </div>
+                <div class="photo-counter">
+                    사진 {{getImageLen}}/8
+                </div>
+                <div v-if="getImageLen > 0" class="photo-gallery">
+                    <div 
+                        v-for="(img, idx) in Object.values(images)" 
+                        :key="idx" 
+                        class="photo-thumbnail"
+                    >
+                        <img :src="img" alt="촬영된 사진">
                     </div>
                 </div>
             </div>
-            <div v-else class="m-auto" style="height: 450px; width: 600px;">
-                <div v-if="!getImageLen" class="h-100 card" @click="onUploadClick">
-                    <div class="m-auto">
-                        <i class="mdi mdi-arrow-up-bold" style="font-size: 70px;"></i>
-                        <div><strong>사진 올리기</strong></div>
-                    </div>                        
+            <div v-else class="camera-error">
+                <div class="text-center">
+                    <i class="mdi mdi-camera-off" style="font-size: 60px; color: #999;"></i>
+                    <p style="font-size: 18px; color: #666; margin-top: 20px;">카메라에 접근할 수 없습니다.</p>
+                    <p style="font-size: 14px; color: #999;">브라우저에서 카메라 권한을 허용해주세요.</p>
                 </div>
-                <div v-else class="m-auto h-100">
-                    <div class="h-100" style="box-shadow: 1px 1px 3px black;">
-                        <div class="m-auto row h-50" v-for="(row, rowIdx) of [0, 1]" :key="rowIdx">
-                            <div class="col-4 m-auto" v-for="(col, colIdx) of [0, 1, 2]" :key="colIdx">
-                                <div v-if="Object.values(images)[rowIdx*3 + col]" class="card m-auto mb-3" style="position: relative;">
-                                    <img class="uploadImage" :src="`${Object.values(images)[rowIdx*3 + col]}`">
-                                    <div class="overlay"><i class="mdi mdi-close" @click="removeImg(Object.keys(images)[rowIdx*3 + col])"></i></div>
-                                </div>
-                                <div v-else class="text-center card" @click="onUploadClick">
-                                    <i class="mdi mdi-arrow-up-bold" style="font-size: 60px;"></i>
-                                    <div><strong>사진 올리기</strong></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div v-if="getImageLen == 6" class="text-center"><button class="btn-custom" @click="initImage">초기화</button></div>
-                </div>
-                <div class="text-center" v-if="getImageLen < 6">카메라가 없다면 가지고 계신 사진을 6장까지 넣어주세요!</div>
-                <input ref="fileInput" @change="onImageUpload" type="file" style="display: none;" multiple>
             </div>
         </div>
         <modal v-if="isOpen" @on-close="isOpen=false" @on-submit="isOpen=false;initImage()" :title="'사진 삭제'" :msg="'찍은 사진들을 모두 초기화 하시겠어요?'"></modal>
@@ -125,6 +82,13 @@ export default {
             isShotPhoto: false,
             isLoading: false,
             isTarget: null,
+            isMirrored: true,
+            facingMode: 'user',
+            stream: null,
+            isCountdown: false,
+            countdown: 5,
+            countdownInterval: null,
+            isPaused: false,
         }
     },
     created() {
@@ -132,13 +96,14 @@ export default {
     },
     mounted() {
         let table = this.$store.getters.getFrame
-        console.log(table)
-        this.rows = table.split('x')[0];
-        this.columns = table.split('x')[1];
-        console.log(this.rows, this.columns)
+        if (table) {
+            this.rows = table.split('x')[0];
+            this.columns = table.split('x')[1];
+        }
         this.images = this.$store.getters.getImages;
 
-        if (this.getImageLen == 6) this.$store.commit('setNext', true);
+        if (this.getImageLen >= 8) this.$store.commit('setNext', true);
+        else if (this.getImageLen >= 6) this.$store.commit('setNext', true);
         else this.$store.commit('setNext', false);
 
         this.createCameraElement();
@@ -149,41 +114,131 @@ export default {
     },
     methods: {
         createCameraElement() {
-            this.isLoading = true;
-            let camSize = null
-            this.rows <= this.columns ? camSize = { width: 400, height: 300 } : camSize = { width: 300, height: 400 };
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                console.error('카메라 API를 사용할 수 없습니다.');
+                this.isLoading = false;
+                this.canPhoto = false;
+                return;
+            }
 
-            const constraints = (window.constraints = {
+            this.isLoading = true;
+            this.canPhoto = false;
+            
+            const constraints = {
                 audio: false,
                 video: {
-                    height: camSize.height,
-                    width: camSize.width,
+                    facingMode: this.facingMode,
+                    width: { ideal: 1800, min: 1200 },
+                    height: { ideal: 1080, min: 720 },
                 },
-            });
+            };
 
             navigator.mediaDevices.getUserMedia(constraints)
                 .then(stream => {
-                    this.isLoading = false;
+                    this.stream = stream;
                     this.canPhoto = true;
-
-                    return stream;
-                })
-                .then(stream => {
-                    this.$refs.camera.srcObject = stream;
+                    this.isLoading = false;
+                    
+                    this.$nextTick(() => {
+                        if (this.$refs.camera) {
+                            this.$refs.camera.srcObject = stream;
+                        }
+                    });
                 })
                 .catch(error => {
-                    console.error(error)
+                    console.error('카메라 접근 오류:', error);
                     this.isLoading = false;
                     this.canPhoto = false;
             });
         },
+        
+        switchCamera() {
+            if (this.stream) {
+                this.stream.getTracks().forEach(track => track.stop());
+            }
+            this.facingMode = this.facingMode === 'user' ? 'environment' : 'user';
+            this.createCameraElement();
+        },
+        
+        toggleMirror() {
+            this.isMirrored = !this.isMirrored;
+        },
+        
+        handlePhotoClick() {
+            if (this.isPhotoTaken) {
+                this.saveImage();
+                this.isPhotoTaken = false;
+            } else {
+                this.startCountdown();
+            }
+        },
+        
+        startCountdown() {
+            if (this.isCountdown && !this.isPaused) return;
+            if (this.isPaused) {
+                this.isPaused = false;
+            }
+            
+            this.isCountdown = true;
+            this.countdown = 5;
+            
+            this.countdownInterval = setInterval(() => {
+                if (this.isPaused) {
+                    clearInterval(this.countdownInterval);
+                    this.countdownInterval = null;
+                    return;
+                }
+                
+                this.countdown--;
+                
+                if (this.countdown <= 0) {
+                    this.stopCountdown();
+                    this.takePhoto();
+                }
+            }, 1000);
+        },
+        
+        stopCountdown() {
+            if (this.countdownInterval) {
+                clearInterval(this.countdownInterval);
+                this.countdownInterval = null;
+            }
+            this.isCountdown = false;
+            this.countdown = 5;
+        },
+        
+        instantCapture() {
+            this.stopCountdown();
+            this.takePhoto();
+        },
+        
+        togglePause() {
+            if (this.isPaused) {
+                // 다시시작: 카운트다운 재개
+                this.isPaused = false;
+                if (this.isCountdown) {
+                    // 카운트다운이 이미 시작되어 있었다면 계속 진행
+                    // 카운트다운이 없었다면 새로 시작
+                    if (!this.countdownInterval) {
+                        this.startCountdown();
+                    }
+                }
+            } else {
+                // 일시정지: 카운트다운 중지
+                this.isPaused = true;
+                if (this.countdownInterval) {
+                    clearInterval(this.countdownInterval);
+                    this.countdownInterval = null;
+                }
+            }
+        },
 
         stopCameraStream() {
-            let tracks = this.$refs.camera.srcObject.getTracks();
-
-            tracks.forEach(track => {
-                track.stop();
-            });
+            if (this.stream) {
+                this.stream.getTracks().forEach(track => {
+                    track.stop();
+                });
+            }
         },
 
         takePhoto() {
@@ -192,8 +247,38 @@ export default {
             } else return;
 
             const context = this.$refs.canvas.getContext('2d');
-
-            this.rows <= this.columns ? context.drawImage(this.$refs.camera, 0, 0, 600, 450) : context.drawImage(this.$refs.camera, 0, 0, 450, 600);
+            const canvas = this.$refs.canvas;
+            const video = this.$refs.camera;
+            
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            
+            // 촬영된 사진도 반전하여 저장
+            context.save();
+            context.scale(-1, 1);
+            context.drawImage(video, -canvas.width, 0, canvas.width, canvas.height);
+            context.restore();
+            
+            // 사진 저장 후 연속 촬영 처리
+            this.$nextTick(() => {
+                this.saveImage();
+                this.isPhotoTaken = false;
+                
+                // 이미지 저장 후 길이 확인
+                this.$nextTick(() => {
+                    // 8장 미만이면 자동으로 다음 카운트다운 시작
+                    if (this.getImageLen < 8) {
+                        setTimeout(() => {
+                            this.startCountdown();
+                        }, 500); // 0.5초 후 다음 카운트다운 시작
+                    } else {
+                        // 8장이 모두 촬영되면 다음 페이지로 이동
+                        setTimeout(() => {
+                            this.$emit('photos-complete');
+                        }, 1000); // 1초 후 다음 페이지로 이동
+                    }
+                });
+            });
         },
 
         saveImage() {
@@ -224,32 +309,6 @@ export default {
             this.$store.commit('setImages', this.images);
         },
 
-        onUploadClick() {
-            this.$refs.fileInput.click();
-        },
-
-        async onImageUpload(e) {
-            if (this.getImageLen >= 6) return;
-
-            let files = Array.from(e.target.files)
-
-            for await (let file of files) {
-                let id = (new Date).getTime();
-
-                if (this.getImageLen >= 6) break;
-                this.$set(this.images, id, await this.readFile(file));
-            }
-        },
-
-        readFile(file) {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    resolve(e.target.result);
-                }
-                reader.readAsDataURL(file);
-            })
-        },
     },
     computed: {
         getImageLen() {
@@ -260,85 +319,281 @@ export default {
         images: {
             deep: true,
             handler() {
-                if (this.getImageLen == 6) this.$store.commit('setNext', true);
+                if (this.getImageLen >= 8) this.$store.commit('setNext', true);
+                else if (this.getImageLen >= 6) this.$store.commit('setNext', true);
+                else this.$store.commit('setNext', false);
                 this.showingImage();
             }
         }
+    },
+    beforeDestroy() {
+        this.stopCameraStream();
+        this.stopCountdown();
     }
 }
 </script>
 
-<style lang="scss"  scoped>
-.col-custom {
-    float: left;
-
-    &-50 {
-        width: 50px;
-    }
-    &-100 {
-        width: 100px;
-    }
-    &-600 {
-        width: 100px;
-    }
+<style lang="scss" scoped>
+.step-two {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #e8d5ff 0%, #d4b3ff 100%);
+    padding: 40px 20px;
+    overflow-y: auto;
 }
 
-.camera-frame {
-    background-color: black;
+.page-title {
+    font-size: 48px;
+    font-weight: bold;
+    color: #ff6b9d;
+    margin: 0 auto 30px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    max-width: 1500px;
 }
 
-.camera-horizontal {
-    width: 750px;
-    height: 450px;
-    box-shadow: 1px 1px 3px black;
+.title-container {
+    text-align: center;
+    margin-bottom: 30px;
 }
 
-.camera-vertical {
-    width: 450px;
-    height: 750px;
-    box-shadow: 1px 1px 3px black;
+.main-title {
+    font-size: 48px;
+    font-weight: bold;
+    background: linear-gradient(135deg, #ff6b9d 0%, #8b5cf6 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin: 0;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.takePic {
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    background-color: #FFF;
-    border: 1px solid black;
+.content-container {
+    background: white;
+    border-radius: 20px;
+    padding: 40px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    max-width: 1500px;
+    margin: 0 auto;
+    margin-top: 0;
 }
 
-.takePic-inner {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    background-color: #FFF;
-    border: 2px solid grey;
+.loading-container {
+    text-align: center;
+    padding: 100px 20px;
+    color: #666;
 }
 
-.uploadImage {
-    width: 160px;
-    height: 120px;
+.title-container {
+    text-align: center;
+    margin-bottom: 30px;
 }
 
-.overlay {
+.section-title {
+    font-size: 28px;
+    font-weight: 600;
+    color: #8b5cf6;
+    margin: 0;
+}
+
+.phone-frame {
+    position: relative;
+    width: 100%;
+    max-width: 1000px;
+    margin: 0 auto 30px;
+    background: #000;
+    border-radius: 25px;
+    padding: 10px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+}
+
+.phone-notch {
     position: absolute;
-    font-size: 30px;
-    top: 0%;
-    left: 0%;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 480px;
+    height: 25px;
+    background: #000;
+    border-radius: 0 0 15px 15px;
+    z-index: 10;
 }
 
-.previewImg-horizontal {
-    height: 60;
-    width: 80;
+.camera-content {
+    position: relative;
+    width: 100%;
+    border-radius: 15px;
+    overflow: hidden;
+    background: #000;
 }
 
-.previewImg-vertical {
-    height: 80;
-    width: 60;
+.camera-content video,
+.camera-content canvas {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: contain;
+    border-radius: 15px;
+    min-height: 400px;
 }
 
-canvas, video {
-    object-fit: cover;
+.camera-mirror {
+    transform: scaleX(-1);
 }
 
+.countdown-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: 15px;
+    z-index: 20;
+}
+
+.countdown-number {
+    font-size: 120px;
+    font-weight: bold;
+    color: white;
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+    margin-bottom: 30px;
+    animation: pulse 0.5s ease-in-out;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.2);
+    }
+}
+
+.btn-instant {
+    background: #ff6b9d;
+    color: white;
+    padding: 15px 30px;
+    font-size: 18px;
+    border-radius: 30px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(255, 107, 157, 0.4);
+    
+    &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(255, 107, 157, 0.6);
+    }
+}
+
+.control-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.btn {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 25px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    
+    &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+}
+
+.btn-photo {
+    background: #ff6b9d;
+    color: white;
+}
+
+.btn-mirror,
+.btn-switch,
+.btn-restart {
+    background: #8b5cf6;
+    color: white;
+}
+
+.photo-counter {
+    text-align: center;
+    font-size: 18px;
+    font-weight: 600;
+    color: #666;
+    margin-bottom: 20px;
+}
+
+.photo-gallery {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    flex-wrap: wrap;
+    margin-top: 30px;
+    padding: 20px 0;
+}
+
+.photo-thumbnail {
+    width: 120px;
+    height: 120px;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    border: 2px solid #e0e0e0;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    
+    &:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        border-color: #8b5cf6;
+    }
+    
+    img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+}
+
+.camera-error {
+    padding: 60px 20px;
+    text-align: center;
+}
+
+@media (max-width: 768px) {
+    .page-title {
+        font-size: 36px;
+    }
+    
+    .main-title {
+        font-size: 36px;
+    }
+    
+    .content-container {
+        padding: 20px;
+    }
+    
+    .control-buttons {
+        flex-direction: column;
+        
+        .btn {
+            width: 100%;
+        }
+    }
+    
+}
 </style>

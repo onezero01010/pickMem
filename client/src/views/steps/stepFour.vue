@@ -752,8 +752,8 @@ img {
         width: 520px;
     }
     &-2-2 {
-        height: 520px;
-        width: 620px;
+        height: 440px;
+        width: 620px; 
     }
     &-2-3 {
         height: 525px;
@@ -800,7 +800,7 @@ img {
         width: 210px;
     }
     &-2-2 {
-        height: 210px;
+        height: 168px;
         width: 280px;
     }
     &-2-3 {

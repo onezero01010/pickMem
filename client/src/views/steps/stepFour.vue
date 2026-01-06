@@ -472,6 +472,8 @@ export default {
     margin-top: 40px;
     flex-direction: column;
     align-items: center;
+    min-width: 0;
+    max-width: 100%;
 }
 
 .canvas-wrapper {
@@ -494,10 +496,10 @@ export default {
 
 .sidebar-section {
     width: 350px;
+    flex: 0 0 auto;
     background: #f9fafb;
     border-radius: 15px;
     padding: 20px;
-    margin-right: 200px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
@@ -824,16 +826,48 @@ img {
 @media (max-width: 1200px) {
     .main-content {
         flex-direction: column;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .canvas-section {
+        margin-top: 20px;
+        width: 100%;
+        max-width: 100%;
+        flex: none;
     }
 
     .sidebar-section {
         width: 100%;
+        max-width: 100%;
+        margin-right: 0;
+        margin-top: 500px;
+        flex: none;
     }
 }
 
 @media (max-width: 768px) {
     .content-container {
-    padding: 20px;
+        padding: 20px;
+    }
+
+    .main-content {
+        gap: 15px;
+    }
+
+    .canvas-section {
+        margin-top: 10px;
+        width: 100%;
+        max-width: 100%;
+        flex: none;
+    }
+
+    .sidebar-section {
+        margin-top: 500px;
+        padding: 15px;
+        width: 100%;
+        max-width: 100%;
+        flex: none;
     }
 
     .color-grid {
@@ -843,5 +877,79 @@ img {
     .pattern-grid {
         grid-template-columns: repeat(4, 1fr);
     }   
+}
+
+/* 세로로 긴 화면 (높이가 넓은 화면보다 긴 경우) */
+@media (max-height: 900px) and (orientation: portrait) {
+    .main-content {
+        flex-direction: column;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .canvas-section {
+        margin-top: 10px;
+        width: 100%;
+        max-width: 100%;
+        flex: none;
+    }
+
+    .sidebar-section {
+        width: 100%;
+        max-width: 100%;
+        margin-right: 0;
+        margin-top: 500px;
+        flex: none;
+    }
+}
+
+/* 모바일 세로 모드 */
+@media (max-width: 480px) {
+    .page-title {
+        font-size: 36px;
+        margin-bottom: 20px;
+    }
+
+    .content-container {
+        padding: 15px;
+    }
+
+    .section-title {
+        font-size: 24px;
+    }
+
+    .main-content {
+        gap: 10px;
+    }
+
+    .canvas-section {
+        margin-top: 0;
+        width: 100%;
+        max-width: 100%;
+        flex: none;
+    }
+
+    .sidebar-section {
+        padding: 12px;
+        width: 100%;
+        max-width: 100%;
+        flex: none;
+        margin-top: 500px;
+    }
+
+    .color-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+    }
+
+    .message-input {
+        font-size: 14px;
+        padding: 10px 12px;
+    }
+
+    .apply-btn, .save-btn, .home-btn {
+        font-size: 14px;
+        padding: 12px 20px;
+    }
 }
 </style>

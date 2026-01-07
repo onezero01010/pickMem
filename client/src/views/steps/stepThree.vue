@@ -1,12 +1,9 @@
 <template>
-    <div class="step-three">
-        <h1 class="page-title">살레네컷</h1>
-        <div class="content-container">
-            <div class="title-container">
-                <h2 class="section-title">사진 선택</h2>
-                <p class="instruction-text">순서대로 {{rows * columns}}장의 사진을 선택하세요</p>
-            </div>
-            <div class="photo-grid">
+    <StepLayout 
+        title="사진 선택" 
+        :instruction="`순서대로 ${rows * columns}장의 사진을 선택하세요`"
+    >
+        <div class="photo-grid">
                 <div 
                     v-for="(id, idx) of Object.keys(images)" 
                     :key="idx" 
@@ -20,17 +17,18 @@
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
+    </StepLayout>
 </template>
 
 <script>
 import basicFrame from './frames/basicFrame.vue'
+import StepLayout from '@/components/StepLayout.vue'
 
 export default {
     name: 'StepThree',
     components: {
         basicFrame,
+        StepLayout
     },
 
     data() {
@@ -155,56 +153,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.step-three {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100vh;
-    background: linear-gradient(135deg, #e8d5ff 0%, #d4b3ff 100%);
-    padding: 40px 20px;
-    overflow-y: auto;
-    overflow-x: hidden;
-}
-
-.page-title {
-    font-size: 48px;
-    font-weight: bold;
-    color: #ff6b9d;
-    margin: 0 auto 30px;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
-    text-align: center;
-    max-width: 1500px;
-}
-
-.content-container {
-    background: white;
-    border-radius: 20px;
-    padding: 40px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-    max-width: 1500px;
-    margin: 0 auto;
-    margin-top: 0;
-}
-
-.title-container {
-    text-align: center;
-    margin-bottom: 30px;
-}
-
-.section-title {
-    font-size: 28px;
-    font-weight: 600;
-    color: #8b5cf6;
-    margin: 0 0 10px 0;
-}
-
-.instruction-text {
-    font-size: 16px;
-    color: #666;
-    margin: 0;
-}
-
 .photo-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -256,17 +204,9 @@ export default {
 }
 
 @media (max-width: 768px) {
-    .page-title {
-        font-size: 36px;
-    }
-    
     .photo-grid {
         grid-template-columns: repeat(2, 1fr);
         gap: 15px;
-    }
-    
-    .content-container {
-        padding: 20px;
     }
 }
 </style>

@@ -1,27 +1,25 @@
 <template>
-    <div class="step-one">
-        <h1 class="page-title">살레네컷</h1>
-        <div class="frame-selection-container">
-            <div class="title-container">
-                <h2 class="subtitle">사진 촬영 프레임 선택</h2>
+    <StepLayout title="사진 촬영 프레임 선택">
+        <div class="frame-options-wrapper">
+            <div class="frame-option" :class="{ 'selected': targetFrame == '1x4' }" @click="selectFrame('1x4')">
+                <img class="frame-preview" src="@/assets/frame/1_4.png" alt="세로 4컷 프레임" draggable="false">
             </div>
-            <div class="frame-options-wrapper">
-                <div class="frame-option" :class="{ 'selected': targetFrame == '1x4' }" @click="selectFrame('1x4')">
-                    <img class="frame-preview" src="@/assets/frame/1_4.png" alt="세로 4컷 프레임" draggable="false">
-                </div>
-                <div class="or-divider">OR</div>
-                <div class="frame-option" :class="{ 'selected': targetFrame == '2x2' }" @click="selectFrame('2x2')">
-                    <img class="frame-preview frame-preview-large" src="@/assets/frame/2_2.png" alt="2x2 그리드 프레임" draggable="false">
-                </div>
+            <div class="or-divider">OR</div>
+            <div class="frame-option" :class="{ 'selected': targetFrame == '2x2' }" @click="selectFrame('2x2')">
+                <img class="frame-preview frame-preview-large" src="@/assets/frame/2_2.png" alt="2x2 그리드 프레임" draggable="false">
             </div>
         </div>
-    </div>
+    </StepLayout>
 </template>
 
 <script>
+import StepLayout from '@/components/StepLayout.vue'
 
 export default {
     name: 'StepOne',
+    components: {
+        StepLayout
+    },
     data() {
         return {
             targetFrame: null,
@@ -63,62 +61,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.step-one {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100vh;
-    background: linear-gradient(135deg, #e8d5ff 0%, #d4b3ff 100%);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
-    padding: 40px 20px;
-    padding-top: 40px;
-    overflow-y: auto;
-    overflow-x: hidden;
-}
-
-.page-title {
-    font-size: 48px;
-    font-weight: bold;
-    color: #ff6b9d;
-    margin: 0 0 30px 0;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
-    text-align: center;
-}
-
-.title-container {
-    text-align: center;
-    margin-bottom: 30px;
-}
-
-.main-title {
-    font-size: 48px;
-    font-weight: bold;
-    color: #ff6b9d;
-    margin: 0 0 15px 0;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.subtitle {
-    font-size: 28px;
-    font-weight: 600;
-    color: #8b5cf6;
-    margin: 0;
-}
-
-.frame-selection-container {
-    background: white;
-    border-radius: 20px;
-    padding: 40px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-    max-width: 1500px;
-    width: 100%;
-    margin-top: 0;
-}
-
 .frame-options-wrapper {
     display: flex;
     align-items: center;
@@ -175,25 +117,13 @@ export default {
 }
 
 @media (max-width: 768px) {
-    .page-title {
-        font-size: 36px;
-    }
-    
-    .frame-selection-container {
+    .frame-options-wrapper {
         flex-direction: column;
         gap: 20px;
     }
     
     .or-divider {
         padding: 10px 0;
-    }
-    
-    .main-title {
-        font-size: 36px;
-    }
-    
-    .subtitle {
-        font-size: 22px;
     }
 }
 </style>

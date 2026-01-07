@@ -1,13 +1,9 @@
     <template>
-    <div class="step-four">
-        <h1 class="page-title">살레네컷</h1>
-        <div class="content-container">
-            <div class="title-container">
-                <h2 class="section-title">장식하기</h2>
-                <p class="instruction-text">배경색, 패턴, 스티커로 사진을 꾸며보세요</p>
-                        </div>
-            
-            <div class="main-content">
+    <StepLayout 
+        title="장식하기" 
+        instruction="배경색, 패턴, 스티커로 사진을 꾸며보세요"
+    >
+        <div class="main-content">
                 <div class="canvas-section">
                     <div class="canvas-wrapper" ref="canvasWrapper">
                     <div ref="pic" :class="`outter-frame-${parseInt(frame.split('x')[0])}-${parseInt(frame.split('x')[1])}`" style="position: absolute; padding: 20px; padding-right: 0px;">
@@ -26,6 +22,29 @@
                 </div>
                 
                 <div class="sidebar-section">
+                    <div class="frame-section">
+                        <h3 class="frame-title">프레임 선택</h3>
+                        <div class="frame-options">
+                            <div 
+                                :class="{ 'selected': !useSnowBackground }" 
+                                class="frame-option-item"
+                                @click="selectFrameType(false)"
+                            >
+                                <div class="frame-option-preview default-frame"></div>
+                                <span class="frame-option-label">기본 프레임</span>
+                            </div>
+                            <div 
+                                :class="{ 'selected': useSnowBackground }" 
+                                class="frame-option-item"
+                                @click="selectFrameType(true)"
+                            >
+                                <div class="frame-option-preview snow-frame">
+                                    <img :src="snowImage" alt="Snow background" />
+                                </div>
+                                <span class="frame-option-label">눈 배경</span>
+                            </div>
+                        </div>
+                    </div>
                     <div class="message-section">
                         <h3 class="message-title">메시지 추가</h3>
                         <input 
@@ -35,8 +54,8 @@
                             placeholder="우린 살레시안"
                         >
                         <button class="apply-btn" @click="addMessage">적용</button>
-            </div>
-                    <div class="sidebar-content">
+                    </div>
+                    <div class="sidebar-content" v-if="!useSnowBackground">
                         <div v-for="(value, theme) in bg" :key="theme">
                             <div class="color-grid">
                                 <div 
@@ -55,19 +74,21 @@
                         <button class="save-btn" @click="saveImage">저장하기</button>
                         <button class="home-btn" @click="goHome">처음으로</button>
                     </div>
-                    </div>
                 </div>    
-            </div>
-    </div>
+        </div>
+    </StepLayout>
 </template>
 
 <script>
 import { fabric } from 'fabric'
 import html2canvas from 'html2canvas'
+import StepLayout from '@/components/StepLayout.vue'
+import snowImage from '@/assets/design/snow.png'
 
 export default {
     name: 'stepFour',
     components: {
+        StepLayout
     },
     data() {
         return {
@@ -79,6 +100,8 @@ export default {
             targetColor: '#00ff0000',
             targetPattern: null,
             frame: null,
+            useSnowBackground: false,
+            snowImage: snowImage,
             canvasHeight: null,
             canvasWidth: null,
             canvas: null,
@@ -127,6 +150,11 @@ export default {
                 this.canvas.renderAll();
             }
 
+            // 4x1이고 snow 배경이 선택되어 있으면 설정
+            if ((this.frame === '4x1' || (this.columns === 4 && this.rows === 1)) && this.useSnowBackground) {
+                await this.setSnowBackground();
+            }
+
             this.setMouseEvent();
             this.setWorkMode();
         },
@@ -157,6 +185,47 @@ export default {
                 this.$refs.pic.style['z-index'] = 2;
                 this.$refs.deco.style['z-index'] = 1;
                 this.$refs.deco.style['opacity'] = 1;
+        },
+        async selectFrameType(useSnow) {
+            this.useSnowBackground = useSnow;
+            
+            if (useSnow) {
+                await this.setSnowBackground();
+            } else {
+                // 기본 프레임으로 복원 - 배경 이미지 제거
+                this.canvas.setBackgroundImage(null, () => {
+                    this.canvas.backgroundColor = '#FFF';
+                    this.targetColor = '#FFF';
+                    this.canvas.renderAll();
+                });
+            }
+            
+            this.canvas.renderAll();
+            this.setWorkMode();
+            this.saveWork();
+        },
+        async setSnowBackground() {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                img.crossOrigin = 'anonymous';
+                img.onload = () => {
+                    this.canvas.setBackgroundColor({
+                        source: this.snowImage,
+                        repeat: 'no-repeat'
+                    }, () => {
+                        this.canvas.renderAll();
+                        resolve();
+                    });
+                };
+                img.onerror = (error) => {
+                    console.error('Snow background 이미지 로드 실패:', error);
+                    // 실패해도 기본 배경으로 설정
+                    this.canvas.backgroundColor = '#FFF';
+                    this.canvas.renderAll();
+                    resolve();
+                };
+                img.src = this.snowImage;
+            });
         },
         selectBg(color) {
             if (this.targetColor == color) {
@@ -274,7 +343,40 @@ export default {
                 const ctx = exportCanvas.getContext('2d');
                 
                 // 배경색/패턴 그리기
-                if (this.canvas.backgroundColor) {
+                // snow 배경이 선택된 경우 직접 snow 이미지 사용
+                if (this.useSnowBackground) {
+                    const snowImg = new Image();
+                    snowImg.crossOrigin = 'anonymous';
+                    await new Promise((resolve, reject) => {
+                        const timeout = setTimeout(() => {
+                            console.error('Snow 배경 이미지 로드 타임아웃');
+                            ctx.fillStyle = '#FFFFFF';
+                            ctx.fillRect(0, 0, exportCanvas.width, exportCanvas.height);
+                            resolve();
+                        }, 10000);
+                        
+                        snowImg.onload = () => {
+                            clearTimeout(timeout);
+                            try {
+                                // snow 배경은 no-repeat로 전체 크기에 맞춰 그리기
+                                ctx.drawImage(snowImg, 0, 0, exportCanvas.width, exportCanvas.height);
+                            } catch (error) {
+                                console.error('Snow 배경 그리기 오류:', error);
+                                ctx.fillStyle = '#FFFFFF';
+                                ctx.fillRect(0, 0, exportCanvas.width, exportCanvas.height);
+                            }
+                            resolve();
+                        };
+                        snowImg.onerror = (error) => {
+                            clearTimeout(timeout);
+                            console.error('Snow 배경 이미지 로드 실패:', error);
+                            ctx.fillStyle = '#FFFFFF';
+                            ctx.fillRect(0, 0, exportCanvas.width, exportCanvas.height);
+                            resolve();
+                        };
+                        snowImg.src = this.snowImage;
+                    });
+                } else if (this.canvas.backgroundColor) {
                     if (typeof this.canvas.backgroundColor === 'string') {
                         ctx.fillStyle = this.canvas.backgroundColor;
                         ctx.fillRect(0, 0, exportCanvas.width, exportCanvas.height);
@@ -283,13 +385,39 @@ export default {
                         const patternImg = new Image();
                         patternImg.crossOrigin = 'anonymous';
                         await new Promise((resolve, reject) => {
+                            const timeout = setTimeout(() => {
+                                console.error('배경 이미지 로드 타임아웃');
+                                ctx.fillStyle = '#FFFFFF';
+                                ctx.fillRect(0, 0, exportCanvas.width, exportCanvas.height);
+                                resolve();
+                            }, 10000);
+                            
                             patternImg.onload = () => {
-                                const pattern = ctx.createPattern(patternImg, 'repeat');
-                                ctx.fillStyle = pattern;
+                                clearTimeout(timeout);
+                                try {
+                                    // 패턴은 repeat로 그리기
+                                    const pattern = ctx.createPattern(patternImg, 'repeat');
+                                    if (pattern) {
+                                        ctx.fillStyle = pattern;
+                                        ctx.fillRect(0, 0, exportCanvas.width, exportCanvas.height);
+                                    } else {
+                                        ctx.fillStyle = '#FFFFFF';
+                                        ctx.fillRect(0, 0, exportCanvas.width, exportCanvas.height);
+                                    }
+                                } catch (error) {
+                                    console.error('배경 그리기 오류:', error);
+                                    ctx.fillStyle = '#FFFFFF';
+                                    ctx.fillRect(0, 0, exportCanvas.width, exportCanvas.height);
+                                }
+                                resolve();
+                            };
+                            patternImg.onerror = (error) => {
+                                clearTimeout(timeout);
+                                console.error('배경 이미지 로드 실패:', error);
+                                ctx.fillStyle = '#FFFFFF';
                                 ctx.fillRect(0, 0, exportCanvas.width, exportCanvas.height);
                                 resolve();
                             };
-                            patternImg.onerror = reject;
                             patternImg.src = this.canvas.backgroundColor.source;
                         });
                     } else {
@@ -306,6 +434,11 @@ export default {
                 if (picElement) {
                     const innerFrames = picElement.querySelectorAll('.inner-frame');
                     console.log('찾은 inner-frame 개수:', innerFrames.length);
+                    
+                    // canvas wrapper의 위치 확인
+                    const canvasWrapper = this.$refs.canvasWrapper;
+                    const wrapperRect = canvasWrapper ? canvasWrapper.getBoundingClientRect() : null;
+                    const canvasRect = this.$refs.canvas.getBoundingClientRect();
                     
                     for (let i = 0; i < innerFrames.length; i++) {
                         const frame = innerFrames[i];
@@ -325,17 +458,30 @@ export default {
                                 
                                 imgElement.onload = () => {
                                     clearTimeout(timeout);
-                                    const frameRect = frame.getBoundingClientRect();
-                                    const canvasRect = this.$refs.canvas.getBoundingClientRect();
-                                    
-                                    // canvas 기준으로 상대 위치 계산
-                                    const x = (frameRect.left - canvasRect.left) * scale;
-                                    const y = (frameRect.top - canvasRect.top) * scale;
-                                    const width = frameRect.width * scale;
-                                    const height = frameRect.height * scale;
-                                    
-                                    console.log(`사진 ${i + 1} 그리기:`, { x, y, width, height });
-                                    ctx.drawImage(imgElement, x, y, width, height);
+                                    try {
+                                        const frameRect = frame.getBoundingClientRect();
+                                        
+                                        // canvas 기준으로 상대 위치 계산
+                                        const x = (frameRect.left - canvasRect.left) * scale;
+                                        const y = (frameRect.top - canvasRect.top) * scale;
+                                        const width = frameRect.width * scale;
+                                        const height = frameRect.height * scale;
+                                        
+                                        console.log(`사진 ${i + 1} 그리기:`, { 
+                                            x, y, width, height,
+                                            frameRect: { left: frameRect.left, top: frameRect.top, width: frameRect.width, height: frameRect.height },
+                                            canvasRect: { left: canvasRect.left, top: canvasRect.top, width: canvasRect.width, height: canvasRect.height }
+                                        });
+                                        
+                                        // 유효한 위치와 크기인지 확인
+                                        if (width > 0 && height > 0 && !isNaN(x) && !isNaN(y)) {
+                                            ctx.drawImage(imgElement, x, y, width, height);
+                                        } else {
+                                            console.warn(`사진 ${i + 1} 위치/크기가 유효하지 않음:`, { x, y, width, height });
+                                        }
+                                    } catch (error) {
+                                        console.error(`사진 ${i + 1} 그리기 오류:`, error);
+                                    }
                                     resolve();
                                 };
                                 
@@ -355,8 +501,16 @@ export default {
                 
                 // canvas의 텍스트와 다른 객체들만 그리기 (배경 제외)
                 const originalBackground = this.canvas.backgroundColor;
+                const originalBackgroundImage = this.canvas.backgroundImage;
+                
+                // 배경을 임시로 제거하여 텍스트와 객체만 추출
                 this.canvas.backgroundColor = 'transparent';
-                this.canvas.renderAll();
+                this.canvas.setBackgroundImage(null, () => {
+                    this.canvas.renderAll();
+                });
+                
+                // 배경이 제거된 상태에서 canvas를 이미지로 변환
+                await this.$nextTick();
                 
                 const canvasDataURL = this.canvas.toDataURL({ 
                     format: 'png',
@@ -366,15 +520,25 @@ export default {
                 
                 // 원래 배경 복원
                 this.canvas.backgroundColor = originalBackground;
-                this.canvas.renderAll();
+                if (originalBackgroundImage) {
+                    this.canvas.setBackgroundImage(originalBackgroundImage, () => {
+                        this.canvas.renderAll();
+                    });
+                } else {
+                    this.canvas.renderAll();
+                }
                 
                 const canvasImg = new Image();
                 await new Promise((resolve, reject) => {
                     canvasImg.onload = () => {
-                        ctx.drawImage(canvasImg, 0, 0);
+                        // 텍스트와 객체들을 그리기
+                        ctx.drawImage(canvasImg, 0, 0, exportCanvas.width, exportCanvas.height);
                         resolve();
                     };
-                    canvasImg.onerror = reject;
+                    canvasImg.onerror = (error) => {
+                        console.error('Canvas 이미지 로드 실패:', error);
+                        resolve(); // 실패해도 계속 진행
+                    };
                     canvasImg.src = canvasDataURL;
                 });
                 
@@ -411,55 +575,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.step-four {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100vh;
-    background: linear-gradient(135deg, #e8d5ff 0%, #d4b3ff 100%);
-    padding: 40px 20px;
-    overflow-y: auto;
-    overflow-x: hidden;
-}
-
-.page-title {
-    font-size: 48px;
-    font-weight: bold;
-    color: #ff6b9d;
-    margin: 0 auto 30px;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
-    text-align: center;
-    max-width: 1500px;
-}
-
-.content-container {
-    background: white;
-    border-radius: 20px;
-    padding: 40px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-    max-width: 1500px;
-    margin: 0 auto;
-}
-
-.title-container {
-    text-align: center;
-    margin-bottom: 30px;
-}
-
-.section-title {
-    font-size: 28px;
-    font-weight: 600;
-    color: #8b5cf6;
-    margin: 0 0 10px 0;
-}
-
-.instruction-text {
-    font-size: 16px;
-    color: #666;
-    margin: 0;
-}
-
 .main-content {
     display: flex;
     gap: 30px;
@@ -469,7 +584,7 @@ export default {
 .canvas-section {
     flex: 1;
     display: flex;
-    margin-top: 40px;
+    margin-top: 20px;
     flex-direction: column;
     align-items: center;
     min-width: 0;
@@ -501,6 +616,80 @@ export default {
     border-radius: 15px;
     padding: 20px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.frame-section {
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid #e5e7eb;
+}
+
+.frame-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #374151;
+    text-align: center;
+    margin: 0 0 15px 0;
+}
+
+.frame-options {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+}
+
+.frame-option-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    padding: 10px;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+
+    &:hover {
+        background: #f3f4f6;
+        transform: translateY(-2px);
+    }
+
+    &.selected {
+        border-color: #8b5cf6;
+        background: #f3e8ff;
+        box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.3);
+    }
+}
+
+.frame-option-preview {
+    width: 100%;
+    aspect-ratio: 1;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+
+    &.default-frame {
+        background: #FFFFFF;
+        border: 1px solid #e5e7eb;
+    }
+
+    &.snow-frame {
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+    }
+}
+
+.frame-option-label {
+    font-size: 14px;
+    font-weight: 500;
+    color: #374151;
 }
 
 .message-section {
@@ -746,8 +935,8 @@ img {
         width: 220px;
     }
     &-1-4 {
-        height: 480px;
-        width: 180px;
+        height: 560px;
+        width: 210px;
     }
     &-2-1 {
         height: 320px;
@@ -777,8 +966,9 @@ img {
 
 .inner-frame {
     position: relative;
-    margin-bottom: 20px;
-    margin-right: 20px;
+    margin-top: -5px;
+    margin-bottom: 15px;
+    margin-left: -11px;
     background: #FFF;
 
     &-1-1 {
@@ -794,8 +984,8 @@ img {
         width: 180px;
     }
     &-1-4 {
-        height: 84px;
-        width: 140px;
+        height: 108px;
+        width: 192px;
     }
     &-2-1 {
         height: 280px;
@@ -841,7 +1031,7 @@ img {
         width: 100%;
         max-width: 100%;
         margin-right: 0;
-        margin-top: 500px;
+        margin-top: 600px;
         flex: none;
     }
 }
@@ -863,7 +1053,7 @@ img {
     }
 
     .sidebar-section {
-        margin-top: 500px;
+        margin-top: 600px;
         padding: 15px;
         width: 100%;
         max-width: 100%;
@@ -898,26 +1088,13 @@ img {
         width: 100%;
         max-width: 100%;
         margin-right: 0;
-        margin-top: 500px;
+        margin-top: 600px;
         flex: none;
     }
 }
 
 /* 모바일 세로 모드 */
 @media (max-width: 480px) {
-    .page-title {
-        font-size: 36px;
-        margin-bottom: 20px;
-    }
-
-    .content-container {
-        padding: 15px;
-    }
-
-    .section-title {
-        font-size: 24px;
-    }
-
     .main-content {
         gap: 10px;
     }
@@ -934,7 +1111,7 @@ img {
         width: 100%;
         max-width: 100%;
         flex: none;
-        margin-top: 500px;
+        margin-top: 600px;
     }
 
     .color-grid {

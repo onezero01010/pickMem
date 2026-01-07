@@ -1,8 +1,6 @@
 <template>
-    <div class="step-two">
-        <h1 class="page-title">살레네컷</h1>
-        <div class="content-container">
-            <div v-if="isLoading" class="loading-container">
+    <StepLayout title="사진 촬영" :show-title="false">
+        <div v-if="isLoading" class="loading-container">
                 <div class="text-center">
                     <div><i class="mdi mdi-loading mdi-spin" style="font-size: 40px;"></i></div>
                     <small>카메라 설정 중</small>
@@ -57,18 +55,19 @@
                     <p style="font-size: 14px; color: #999;">브라우저에서 카메라 권한을 허용해주세요.</p>
                 </div>
             </div>
-        </div>
         <modal v-if="isOpen" @on-close="isOpen=false" @on-submit="isOpen=false;initImage()" :title="'사진 삭제'" :msg="'찍은 사진들을 모두 초기화 하시겠어요?'"></modal>
-    </div>
+    </StepLayout>
 </template>
 
 <script>
 import Modal from '../../components/modal.vue'
+import StepLayout from '@/components/StepLayout.vue'
 
 export default {
-    name: 'StepOne',
+    name: 'StepTwo',
     components: {
-        Modal
+        Modal,
+        StepLayout
     },
     data() {
         return {
@@ -128,7 +127,7 @@ export default {
                 audio: false,
                 video: {
                     facingMode: this.facingMode,
-                    width: { ideal: 1800, min: 1200 },
+                    width: { ideal: 1920, min: 1280 },
                     height: { ideal: 1080, min: 720 },
                 },
             };
@@ -334,70 +333,10 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.step-two {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100vh;
-    background: linear-gradient(135deg, #e8d5ff 0%, #d4b3ff 100%);
-    padding: 40px 20px;
-    overflow-y: auto;
-    overflow-x: hidden;
-}
-
-.page-title {
-    font-size: 48px;
-    font-weight: bold;
-    color: #ff6b9d;
-    margin: 0 auto 30px;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
-    text-align: center;
-    max-width: 1500px;
-}
-
-.title-container {
-    text-align: center;
-    margin-bottom: 30px;
-}
-
-.main-title {
-    font-size: 48px;
-    font-weight: bold;
-    background: linear-gradient(135deg, #ff6b9d 0%, #8b5cf6 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    margin: 0;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.content-container {
-    background: white;
-    border-radius: 20px;
-    padding: 40px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-    max-width: 1500px;
-    margin: 0 auto;
-    margin-top: 0;
-}
-
 .loading-container {
     text-align: center;
     padding: 100px 20px;
     color: #666;
-}
-
-.title-container {
-    text-align: center;
-    margin-bottom: 30px;
-}
-
-.section-title {
-    font-size: 28px;
-    font-weight: 600;
-    color: #8b5cf6;
-    margin: 0;
 }
 
 .phone-frame {
@@ -576,18 +515,6 @@ export default {
 }
 
 @media (max-width: 768px) {
-    .page-title {
-        font-size: 36px;
-    }
-    
-    .main-title {
-        font-size: 36px;
-    }
-    
-    .content-container {
-        padding: 20px;
-    }
-    
     .control-buttons {
         flex-direction: column;
         

@@ -26,22 +26,32 @@
                         <h3 class="frame-title">프레임 선택</h3>
                         <div class="frame-options">
                             <div 
-                                :class="{ 'selected': !useSnowBackground }" 
+                                :class="{ 'selected': frameType === 'default' }" 
                                 class="frame-option-item"
-                                @click="selectFrameType(false)"
+                                @click="selectFrameType('default')"
                             >
                                 <div class="frame-option-preview default-frame"></div>
                                 <span class="frame-option-label">기본 프레임</span>
                             </div>
                             <div 
-                                :class="{ 'selected': useSnowBackground }" 
+                                :class="{ 'selected': frameType === 'snow' }" 
                                 class="frame-option-item"
-                                @click="selectFrameType(true)"
+                                @click="selectFrameType('snow')"
                             >
                                 <div class="frame-option-preview snow-frame">
-                                    <img :src="snowImage" alt="Snow background" />
+                                    <img :src="getSnowImage()" alt="Snow background" />
                                 </div>
                                 <span class="frame-option-label">눈 배경</span>
+                            </div>
+                            <div 
+                                :class="{ 'selected': frameType === 'red' }" 
+                                class="frame-option-item"
+                                @click="selectFrameType('red')"
+                            >
+                                <div class="frame-option-preview red-frame">
+                                    <img :src="getRedImage()" alt="Red background" />
+                                </div>
+                                <span class="frame-option-label">빨간 배경</span>
                             </div>
                         </div>
                     </div>
@@ -55,7 +65,7 @@
                         >
                         <button class="apply-btn" @click="addMessage">적용</button>
                     </div>
-                    <div class="sidebar-content" v-if="!useSnowBackground">
+                    <div class="sidebar-content" v-if="frameType === 'default'">
                         <div v-for="(value, theme) in bg" :key="theme">
                             <div class="color-grid">
                                 <div 
@@ -84,6 +94,9 @@ import { fabric } from 'fabric'
 import html2canvas from 'html2canvas'
 import StepLayout from '@/components/StepLayout.vue'
 import snowImage from '@/assets/design/snow.png'
+import redImage from '@/assets/design/red.png'
+import snowImage22 from '@/assets/design/2-2_snow.png'
+import redImage22 from '@/assets/design/2-2_red.png'
 
 export default {
     name: 'stepFour',
@@ -100,8 +113,12 @@ export default {
             targetColor: '#00ff0000',
             targetPattern: null,
             frame: null,
-            useSnowBackground: false,
+            frameType: 'default', // 'default', 'snow', 'red'
+            useSnowBackground: false, // 하위 호환성을 위해 유지
             snowImage: snowImage,
+            redImage: redImage,
+            snowImage22: snowImage22,
+            redImage22: redImage22,
             canvasHeight: null,
             canvasWidth: null,
             canvas: null,
@@ -138,8 +155,18 @@ export default {
             this.colCnt = Array.from({length: table.columns}, (v, i) => i + 1);
             this.pattern.basic = Array.from({length: 9}, (v, i) => i + 1);
 
-            this.canvasHeight = this.$refs.canvas.clientHeight;
-            this.canvasWidth = this.$refs.canvas.clientWidth;
+            // DOM이 완전히 렌더링될 때까지 대기
+            await this.$nextTick();
+            
+            // 2x2 프레임인 경우 명시적으로 정사각형 크기 설정
+            if (this.columns === 2 && this.rows === 2) {
+                this.canvasHeight = 620;
+                this.canvasWidth = 620;
+            } else {
+                this.canvasHeight = this.$refs.canvas.clientHeight;
+                this.canvasWidth = this.$refs.canvas.clientWidth;
+            }
+            
             this.canvas = new fabric.Canvas(this.$refs.canvas);
             this.canvas.setHeight(this.canvasHeight);
             this.canvas.setWidth(this.canvasWidth);
@@ -150,8 +177,18 @@ export default {
                 this.canvas.renderAll();
             }
 
-            // 4x1이고 snow 배경이 선택되어 있으면 설정
-            if ((this.frame === '4x1' || (this.columns === 4 && this.rows === 1)) && this.useSnowBackground) {
+            // 저장된 프레임 타입이 있으면 복원
+            if (this.$store.getters.getFrameType) {
+                this.frameType = this.$store.getters.getFrameType;
+                if (this.frameType === 'snow') {
+                    this.useSnowBackground = true;
+                    await this.setSnowBackground();
+                } else if (this.frameType === 'red') {
+                    await this.setRedBackground();
+                }
+            } else if ((this.frame === '4x1' || (this.columns === 4 && this.rows === 1)) && this.useSnowBackground) {
+                // 하위 호환성: 기존 useSnowBackground가 true면 snow로 설정
+                this.frameType = 'snow';
                 await this.setSnowBackground();
             }
 
@@ -186,11 +223,16 @@ export default {
                 this.$refs.deco.style['z-index'] = 1;
                 this.$refs.deco.style['opacity'] = 1;
         },
-        async selectFrameType(useSnow) {
-            this.useSnowBackground = useSnow;
+        async selectFrameType(type) {
+            this.frameType = type;
             
-            if (useSnow) {
+            // 하위 호환성을 위해 useSnowBackground도 업데이트
+            this.useSnowBackground = (type === 'snow');
+            
+            if (type === 'snow') {
                 await this.setSnowBackground();
+            } else if (type === 'red') {
+                await this.setRedBackground();
             } else {
                 // 기본 프레임으로 복원 - 배경 이미지 제거
                 this.canvas.setBackgroundImage(null, () => {
@@ -203,28 +245,101 @@ export default {
             this.canvas.renderAll();
             this.setWorkMode();
             this.saveWork();
+            // 프레임 타입 저장
+            this.$store.commit('setFrameType', type);
+        },
+        getSnowImage() {
+            // 2x2 프레임인 경우 2-2_snow.png 사용, 그 외에는 snow.png 사용
+            if (this.columns === 2 && this.rows === 2) {
+                return this.snowImage22;
+            }
+            return this.snowImage;
+        },
+        getRedImage() {
+            // 2x2 프레임인 경우 2-2_red.png 사용, 그 외에는 red.png 사용
+            if (this.columns === 2 && this.rows === 2) {
+                return this.redImage22;
+            }
+            return this.redImage;
         },
         async setSnowBackground() {
+            const imageSrc = this.getSnowImage();
             return new Promise((resolve, reject) => {
-                const img = new Image();
-                img.crossOrigin = 'anonymous';
-                img.onload = () => {
-                    this.canvas.setBackgroundColor({
-                        source: this.snowImage,
-                        repeat: 'no-repeat'
-                    }, () => {
+                fabric.Image.fromURL(imageSrc, (img) => {
+                    if (!img) {
+                        console.error('Snow background 이미지 로드 실패');
+                        this.canvas.backgroundColor = '#FFF';
+                        this.canvas.renderAll();
+                        resolve();
+                        return;
+                    }
+                    
+                    // canvas 크기에 맞게 이미지 스케일링 (비율 유지)
+                    const canvasWidth = this.canvas.width;
+                    const canvasHeight = this.canvas.height;
+                    const imgWidth = img.width;
+                    const imgHeight = img.height;
+                    
+                    // cover 방식: canvas를 완전히 채우도록 스케일
+                    const scaleX = canvasWidth / imgWidth;
+                    const scaleY = canvasHeight / imgHeight;
+                    const scale = Math.max(scaleX, scaleY);
+                    
+                    img.scale(scale);
+                    img.set({
+                        left: 0,
+                        top: 0,
+                        originX: 'left',
+                        originY: 'top'
+                    });
+                    
+                    this.canvas.setBackgroundImage(img, () => {
                         this.canvas.renderAll();
                         resolve();
                     });
-                };
-                img.onerror = (error) => {
-                    console.error('Snow background 이미지 로드 실패:', error);
-                    // 실패해도 기본 배경으로 설정
-                    this.canvas.backgroundColor = '#FFF';
-                    this.canvas.renderAll();
-                    resolve();
-                };
-                img.src = this.snowImage;
+                }, {
+                    crossOrigin: 'anonymous'
+                });
+            });
+        },
+        async setRedBackground() {
+            const imageSrc = this.getRedImage();
+            return new Promise((resolve, reject) => {
+                fabric.Image.fromURL(imageSrc, (img) => {
+                    if (!img) {
+                        console.error('Red background 이미지 로드 실패');
+                        this.canvas.backgroundColor = '#FFF';
+                        this.canvas.renderAll();
+                        resolve();
+                        return;
+                    }
+                    
+                    // canvas 크기에 맞게 이미지 스케일링 (비율 유지)
+                    const canvasWidth = this.canvas.width;
+                    const canvasHeight = this.canvas.height;
+                    const imgWidth = img.width;
+                    const imgHeight = img.height;
+                    
+                    // cover 방식: canvas를 완전히 채우도록 스케일
+                    const scaleX = canvasWidth / imgWidth;
+                    const scaleY = canvasHeight / imgHeight;
+                    const scale = Math.max(scaleX, scaleY);
+                    
+                    img.scale(scale);
+                    img.set({
+                        left: 0,
+                        top: 0,
+                        originX: 'left',
+                        originY: 'top'
+                    });
+                    
+                    this.canvas.setBackgroundImage(img, () => {
+                        this.canvas.renderAll();
+                        resolve();
+                    });
+                }, {
+                    crossOrigin: 'anonymous'
+                });
             });
         },
         selectBg(color) {
@@ -343,39 +458,92 @@ export default {
                 const ctx = exportCanvas.getContext('2d');
                 
                 // 배경색/패턴 그리기
-                // snow 배경이 선택된 경우 직접 snow 이미지 사용
-                if (this.useSnowBackground) {
-                    const snowImg = new Image();
-                    snowImg.crossOrigin = 'anonymous';
-                    await new Promise((resolve, reject) => {
-                        const timeout = setTimeout(() => {
-                            console.error('Snow 배경 이미지 로드 타임아웃');
-                            ctx.fillStyle = '#FFFFFF';
-                            ctx.fillRect(0, 0, exportCanvas.width, exportCanvas.height);
-                            resolve();
-                        }, 10000);
-                        
-                        snowImg.onload = () => {
-                            clearTimeout(timeout);
+                // snow 또는 red 배경이 선택된 경우 canvas의 backgroundImage 사용
+                if (this.frameType === 'snow' || this.useSnowBackground || this.frameType === 'red') {
+                    const bgImage = this.canvas.backgroundImage;
+                    if (bgImage && bgImage.getElement) {
+                        // fabric.js의 backgroundImage가 있으면 직접 사용
+                        const imgElement = bgImage.getElement();
+                        if (imgElement) {
                             try {
-                                // snow 배경은 no-repeat로 전체 크기에 맞춰 그리기
-                                ctx.drawImage(snowImg, 0, 0, exportCanvas.width, exportCanvas.height);
+                                // backgroundImage의 스케일 정보 가져오기
+                                const scaleX = bgImage.scaleX || 1;
+                                const scaleY = bgImage.scaleY || 1;
+                                const imgWidth = bgImage.width * scaleX;
+                                const imgHeight = bgImage.height * scaleY;
+                                
+                                // exportCanvas 크기에 맞게 스케일 계산
+                                const exportScaleX = exportCanvas.width / this.canvas.width;
+                                const exportScaleY = exportCanvas.height / this.canvas.height;
+                                
+                                ctx.drawImage(
+                                    imgElement,
+                                    0, 0,
+                                    imgWidth * exportScaleX,
+                                    imgHeight * exportScaleY
+                                );
                             } catch (error) {
-                                console.error('Snow 배경 그리기 오류:', error);
+                                console.error('배경 이미지 그리기 오류:', error);
                                 ctx.fillStyle = '#FFFFFF';
                                 ctx.fillRect(0, 0, exportCanvas.width, exportCanvas.height);
                             }
-                            resolve();
-                        };
-                        snowImg.onerror = (error) => {
-                            clearTimeout(timeout);
-                            console.error('Snow 배경 이미지 로드 실패:', error);
+                        } else {
                             ctx.fillStyle = '#FFFFFF';
                             ctx.fillRect(0, 0, exportCanvas.width, exportCanvas.height);
-                            resolve();
-                        };
-                        snowImg.src = this.snowImage;
-                    });
+                        }
+                    } else {
+                        // backgroundImage가 없으면 원본 이미지에서 로드 (fallback)
+                        const imageSrc = (this.frameType === 'snow' || this.useSnowBackground) ? this.getSnowImage() : this.getRedImage();
+                        const img = new Image();
+                        img.crossOrigin = 'anonymous';
+                        await new Promise((resolve, reject) => {
+                            const timeout = setTimeout(() => {
+                                console.error('배경 이미지 로드 타임아웃');
+                                ctx.fillStyle = '#FFFFFF';
+                                ctx.fillRect(0, 0, exportCanvas.width, exportCanvas.height);
+                                resolve();
+                            }, 10000);
+                            
+                            img.onload = () => {
+                                clearTimeout(timeout);
+                                try {
+                                    // 비율 유지하면서 canvas를 채우도록 스케일 (cover 방식)
+                                    const imgAspect = img.width / img.height;
+                                    const canvasAspect = exportCanvas.width / exportCanvas.height;
+                                    
+                                    let drawWidth, drawHeight, drawX, drawY;
+                                    if (imgAspect > canvasAspect) {
+                                        // 이미지가 더 넓음 - 높이에 맞춤
+                                        drawHeight = exportCanvas.height;
+                                        drawWidth = img.width * (drawHeight / img.height);
+                                        drawX = (exportCanvas.width - drawWidth) / 2;
+                                        drawY = 0;
+                                    } else {
+                                        // 이미지가 더 높음 - 너비에 맞춤
+                                        drawWidth = exportCanvas.width;
+                                        drawHeight = img.height * (drawWidth / img.width);
+                                        drawX = 0;
+                                        drawY = (exportCanvas.height - drawHeight) / 2;
+                                    }
+                                    
+                                    ctx.drawImage(img, drawX, drawY, drawWidth, drawHeight);
+                                } catch (error) {
+                                    console.error('배경 이미지 그리기 오류:', error);
+                                    ctx.fillStyle = '#FFFFFF';
+                                    ctx.fillRect(0, 0, exportCanvas.width, exportCanvas.height);
+                                }
+                                resolve();
+                            };
+                            img.onerror = (error) => {
+                                clearTimeout(timeout);
+                                console.error('배경 이미지 로드 실패:', error);
+                                ctx.fillStyle = '#FFFFFF';
+                                ctx.fillRect(0, 0, exportCanvas.width, exportCanvas.height);
+                                resolve();
+                            };
+                            img.src = imageSrc;
+                        });
+                    }
                 } else if (this.canvas.backgroundColor) {
                     if (typeof this.canvas.backgroundColor === 'string') {
                         ctx.fillStyle = this.canvas.backgroundColor;
@@ -462,20 +630,50 @@ export default {
                                         const frameRect = frame.getBoundingClientRect();
                                         
                                         // canvas 기준으로 상대 위치 계산
-                                        const x = (frameRect.left - canvasRect.left) * scale;
-                                        const y = (frameRect.top - canvasRect.top) * scale;
+                                        // 저장 시 왼쪽과 위쪽 margin을 10px씩 추가
+                                        const x = ((frameRect.left - canvasRect.left) * scale) + (7 * scale);
+                                        const y = ((frameRect.top - canvasRect.top) * scale) + (7 * scale);
                                         const width = frameRect.width * scale;
                                         const height = frameRect.height * scale;
                                         
+                                        // 원본 이미지와 frame의 비율 계산 (cover 방식으로 crop)
+                                        const imgAspect = imgElement.width / imgElement.height;
+                                        const frameAspect = frameRect.width / frameRect.height;
+                                        
+                                        let sourceX = 0;
+                                        let sourceY = 0;
+                                        let sourceWidth = imgElement.width;
+                                        let sourceHeight = imgElement.height;
+                                        
+                                        // 이미지가 frame보다 넓으면 양옆을 잘라야 함
+                                        if (imgAspect > frameAspect) {
+                                            // 높이에 맞춤, 양옆 crop
+                                            sourceHeight = imgElement.height;
+                                            sourceWidth = imgElement.height * frameAspect;
+                                            sourceX = (imgElement.width - sourceWidth) / 2; // 중앙 정렬
+                                        } else {
+                                            // 너비에 맞춤, 위아래 crop
+                                            sourceWidth = imgElement.width;
+                                            sourceHeight = imgElement.width / frameAspect;
+                                            sourceY = (imgElement.height - sourceHeight) / 2; // 중앙 정렬
+                                        }
+                                        
                                         console.log(`사진 ${i + 1} 그리기:`, { 
                                             x, y, width, height,
+                                            sourceX, sourceY, sourceWidth, sourceHeight,
+                                            imgAspect, frameAspect,
                                             frameRect: { left: frameRect.left, top: frameRect.top, width: frameRect.width, height: frameRect.height },
                                             canvasRect: { left: canvasRect.left, top: canvasRect.top, width: canvasRect.width, height: canvasRect.height }
                                         });
                                         
                                         // 유효한 위치와 크기인지 확인
                                         if (width > 0 && height > 0 && !isNaN(x) && !isNaN(y)) {
-                                            ctx.drawImage(imgElement, x, y, width, height);
+                                            // drawImage의 9개 파라미터 버전 사용 (crop 후 그리기)
+                                            ctx.drawImage(
+                                                imgElement,
+                                                sourceX, sourceY, sourceWidth, sourceHeight, // source rectangle (crop)
+                                                x, y, width, height // destination rectangle
+                                            );
                                         } else {
                                             console.warn(`사진 ${i + 1} 위치/크기가 유효하지 않음:`, { x, y, width, height });
                                         }
@@ -589,6 +787,7 @@ export default {
     align-items: center;
     min-width: 0;
     max-width: 100%;
+    min-height: 600px;
 }
 
 .canvas-wrapper {
@@ -634,7 +833,7 @@ export default {
 
 .frame-options {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     gap: 15px;
 }
 
@@ -678,6 +877,14 @@ export default {
     }
 
     &.snow-frame {
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+    }
+
+    &.red-frame {
         img {
             width: 100%;
             height: 100%;
@@ -751,7 +958,7 @@ export default {
 }
 
 .sidebar-content {
-    max-height: 600px;
+    max-height: 700px;
     overflow-y: auto;
     padding-right: 5px;
     margin-bottom: 20px;
@@ -919,9 +1126,6 @@ img {
 }
 
 .outter-frame {
-    padding-right: 0px;
-    padding-bottom: 0px;
-
     &-1-1 {
         height: 350px;
         width: 400px;
@@ -943,7 +1147,7 @@ img {
         width: 520px;
     }
     &-2-2 {
-        height: 440px;
+        height: 620px;
         width: 620px; 
     }
     &-2-3 {
@@ -966,10 +1170,6 @@ img {
 
 .inner-frame {
     position: relative;
-    margin-top: -5px;
-    margin-bottom: 15px;
-    margin-left: -11px;
-    background: #FFF;
 
     &-1-1 {
         height: 270px;
@@ -984,16 +1184,21 @@ img {
         width: 180px;
     }
     &-1-4 {
-        height: 108px;
-        width: 192px;
+        margin-top: 12px;
+        margin-bottom: 4px;
+        margin-left: 1px;
+        height: 94.5px;
+        width: 168px;
     }
     &-2-1 {
         height: 280px;
         width: 210px;
     }
     &-2-2 {
-        height: 168px;
-        width: 280px;
+        margin-left: 7px;
+        margin-top: 10px;
+        height: 230px;
+        width: 272px;
     }
     &-2-3 {
         height: 135px;

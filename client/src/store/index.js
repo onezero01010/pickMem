@@ -11,6 +11,7 @@ const getDefaultState = () => {
     frameCanvas: null,
     frameImg: null,
     frame: null,
+    frameType: 'default',
     imgCanvas: {},
     images: {},
     selectTarget: {},
@@ -63,6 +64,9 @@ export default new Vuex.Store({
     setFrame(state, frame) {
       state.frame = frame;
     },
+    setFrameType(state, frameType) {
+      state.frameType = frameType;
+    },
     setCanvas(state, canvas) {
       state.frameCanvas = canvas;
     },
@@ -95,6 +99,9 @@ export default new Vuex.Store({
     },
     getFrame(state) {
       return state.frame;
+    },
+    getFrameType(state) {
+      return state.frameType;
     },
     getCanvas(state) {
       return state.frameCanvas;

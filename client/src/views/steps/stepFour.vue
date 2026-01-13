@@ -9,12 +9,10 @@
                     <div ref="pic" :class="`outter-frame-${parseInt(frame.split('x')[0])}-${parseInt(frame.split('x')[1])}`" style="position: absolute; padding: 20px; padding-right: 0px;">
                         <div :class="`row p-0 m-0`" v-for="(row, rowIdx) of rowCnt" :key="rowIdx">
                             <div :class="`pl-0 pr-0 inner-frame inner-frame-${columns}-${rows}`" v-for="(col, colIdx) of colCnt" :key="colIdx">
-                                <div :class="`inner-frame-${columns}-${rows}`">
-                                    <img :src="images[rowIdx*colCnt.length + col]" :id="`canvas-${rowIdx*colCnt.length + col}`" draggable="false">
-                                </div>
+                                <img :src="images[rowIdx*colCnt.length + col]" :id="`canvas-${rowIdx*colCnt.length + col}`" draggable="false">
                             </div>
                         </div>
-                    </div>
+                    </div> 
                         <div ref="deco" style="position: absolute;">
                         <canvas v-if="frame" :class="`outter-frame outter-frame-${parseInt(frame.split('x')[0])}-${parseInt(frame.split('x')[1])}`" ref="canvas"></canvas>
                     </div>
@@ -630,9 +628,12 @@ export default {
                                         const frameRect = frame.getBoundingClientRect();
                                         
                                         // canvas 기준으로 상대 위치 계산
-                                        // 저장 시 왼쪽과 위쪽 margin을 10px씩 추가
-                                        const x = ((frameRect.left - canvasRect.left) * scale) + (7 * scale);
-                                        const y = ((frameRect.top - canvasRect.top) * scale) + (7 * scale);
+                                        // 2x2 프레임(2x2 레이아웃)에서만 저장 시 왼쪽/위쪽 margin을 추가
+                                        const is22Frame = (this.columns === 2 && this.rows === 2);
+                                        const offsetX = is22Frame ? 7 * scale : 0;
+                                        const offsetY = is22Frame ? 5 * scale : 0;
+                                        const x = ((frameRect.left - canvasRect.left) * scale) + offsetX;
+                                        const y = ((frameRect.top - canvasRect.top) * scale) + offsetY;
                                         const width = frameRect.width * scale;
                                         const height = frameRect.height * scale;
                                         
@@ -1169,8 +1170,6 @@ img {
 }
 
 .inner-frame {
-    position: relative;
-
     &-1-1 {
         height: 270px;
         width: 360px;
@@ -1184,9 +1183,10 @@ img {
         width: 180px;
     }
     &-1-4 {
-        margin-top: 12px;
-        margin-bottom: 4px;
-        margin-left: 1px;
+        margin-top: 16px;
+        margin-bottom: 3px;
+        margin-left: 1.5px;
+
         height: 94.5px;
         width: 168px;
     }
@@ -1196,7 +1196,7 @@ img {
     }
     &-2-2 {
         margin-left: 7px;
-        margin-top: 10px;
+        margin-top: 7px;
         height: 230px;
         width: 272px;
     }

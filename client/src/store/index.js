@@ -18,6 +18,8 @@ const getDefaultState = () => {
     selectList: {},
     tmpTarget: {},
     orderQueue: [],
+    selectedCharacters: [],
+    selectedCharacter: null,
   };
 };
 
@@ -77,6 +79,12 @@ export default new Vuex.Store({
       state.rows = table.rows;
       state.columns = table.columns;
     },
+    setSelectedCharacters(state, characters) {
+      state.selectedCharacters = characters;
+    },
+    setSelectedCharacter(state, character) {
+      state.selectedCharacter = character;
+    },
     resetState(state) {
       Object.assign(state, getDefaultState());
     }
@@ -126,6 +134,12 @@ export default new Vuex.Store({
     },
     getImgCanvas: (state) => (idx) => {
       return state.imgCanvas[idx];
+    },
+    getSelectedCharacters(state) {
+      return state.selectedCharacters;
+    },
+    getSelectedCharacter(state) {
+      return state.selectedCharacter;
     },
   },
   actions: {

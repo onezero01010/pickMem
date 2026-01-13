@@ -3,7 +3,8 @@
         <div class="content" style="overflow-y: auto;">
             <nav-bar v-if="step > 3" class="nav" :msg="msg[step]" @on-next="nextStep" @on-previous="previousStep" :step="step"></nav-bar>
             <div class="body container">
-                <step-one class="step-0" v-if="step==0" @frame-selected="nextStep"></step-one>
+                <step-one class="step-0" v-if="step==0" @frame-selected="nextStep" @character-selection-needed="goToCharacterSelection"></step-one>
+                <step-one-point-five class="step-0-5" v-else-if="step==0.5" @characters-selected="goToPhotoStep"></step-one-point-five>
                 <step-two class="step-1" v-else-if="step==1" @photos-complete="nextStep"></step-two>
                 <step-three class="step-2" v-else-if="step==2" @photos-selected="nextStep"></step-three>
                 <step-four class="step-3" v-else-if="step==3" @on-previous="previousStep"></step-four>
@@ -20,6 +21,7 @@
 import navBar from '../../components/nav.vue'
 import footerBar from '../../components/footer.vue'
 import stepOne from '../steps/stepOne.vue';
+import stepOnePointFive from '../steps/stepOnePointFive.vue';
 import stepTwo from '../steps/stepTwo.vue';
 import stepThree from '../steps/stepThree.vue';
 import stepFour from '../steps/stepFour.vue';
@@ -32,6 +34,7 @@ export default {
         navBar,
         footerBar,
         stepOne,
+        stepOnePointFive,
         stepTwo,
         stepThree,
         stepFour,
@@ -76,8 +79,18 @@ export default {
 
         previousStep() {
             if (this.step == 0) this.$router.push('/');
+            if (this.step == 0.5) {
+                this.step = 0;
+                return;
+            }
 
             this.step -= 1;
+        },
+        goToCharacterSelection() {
+            this.step = 0.5;
+        },
+        goToPhotoStep() {
+            this.step = 1;
         },
     },
 }
@@ -89,7 +102,8 @@ export default {
     margin-top: 0;
 }
 
-.step-0 {
+.step-0,
+.step-0-5 {
     margin-top: 0 !important;
 }
 

@@ -627,13 +627,8 @@ export default {
                                     try {
                                         const frameRect = frame.getBoundingClientRect();
                                         
-                                        // canvas 기준으로 상대 위치 계산
-                                        // 2x2 프레임(2x2 레이아웃)에서만 저장 시 왼쪽/위쪽 margin을 추가
-                                        const is22Frame = (this.columns === 2 && this.rows === 2);
-                                        const offsetX = is22Frame ? 7 * scale : 0;
-                                        const offsetY = is22Frame ? 5 * scale : 0;
-                                        const x = ((frameRect.left - canvasRect.left) * scale) + offsetX;
-                                        const y = ((frameRect.top - canvasRect.top) * scale) + offsetY;
+                                        const x = ((frameRect.left - canvasRect.left) * scale);
+                                        const y = ((frameRect.top - canvasRect.top) * scale);
                                         const width = frameRect.width * scale;
                                         const height = frameRect.height * scale;
                                         
@@ -1170,6 +1165,7 @@ img {
 }
 
 .inner-frame {
+    position: relative;
     &-1-1 {
         height: 270px;
         width: 360px;
@@ -1195,8 +1191,8 @@ img {
         width: 210px;
     }
     &-2-2 {
-        margin-left: 7px;
-        margin-top: 7px;
+        margin-left: 12px;
+        margin-top: 10px;
         height: 230px;
         width: 272px;
     }

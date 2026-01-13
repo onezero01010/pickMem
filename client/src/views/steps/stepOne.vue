@@ -44,9 +44,13 @@ export default {
             });
             this.$store.commit('setFrame', id);
             
-            // 프레임 선택 시 자동으로 다음 단계로 이동
+            // 2-2 프레임인 경우 인물 선택 페이지로 이동, 그 외에는 바로 다음 단계로
             this.$nextTick(() => {
-                this.$emit('frame-selected');
+                if (id === '2x2') {
+                    this.$emit('character-selection-needed');
+                } else {
+                    this.$emit('frame-selected');
+                }
             });
         },
         nextStep() {

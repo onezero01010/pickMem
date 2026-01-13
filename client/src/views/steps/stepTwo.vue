@@ -13,8 +13,14 @@
                 <div class="phone-frame">
                     <div class="phone-notch"></div>
                     <div class="camera-content">
-                        <video v-show="!isPhotoTaken" ref="camera" :class="{'camera-mirror': isMirrored}" autoplay></video>
-                        <canvas v-show="isPhotoTaken" ref="canvas"></canvas>
+                        <video v-show="!isPhotoTaken" ref="camera" :class="{'camera-mirror': isMirrored, 'camera-22-frame': is22Frame}" autoplay></video>
+                        <canvas v-show="isPhotoTaken" ref="canvas" :class="{'camera-22-frame': is22Frame}"></canvas>
+                        <img 
+                            v-if="overlayImageSrc && !isPhotoTaken" 
+                            :src="overlayImageSrc" 
+                            class="character-overlay"
+                            alt="Character overlay"
+                        />
                         <div v-if="isCountdown && !isPaused" class="countdown-overlay">
                             <div class="countdown-number">{{countdown}}</div>
                             <button class="btn btn-instant" @click="instantCapture">즉시 촬영</button>
@@ -62,6 +68,10 @@
 <script>
 import Modal from '../../components/modal.vue'
 import StepLayout from '@/components/StepLayout.vue'
+import jesusOverlay1 from '@/assets/design/2-2_jesus_1.png'
+import jesusOverlay2 from '@/assets/design/2-2_jesus_2.png'
+import boscoOverlay1 from '@/assets/design/2-2_bosco_1.png'
+import boscoOverlay2 from '@/assets/design/2-2_bosco_2.png'
 
 export default {
     name: 'StepTwo',
@@ -88,6 +98,12 @@ export default {
             countdown: 5,
             countdownInterval: null,
             isPaused: false,
+            currentPhotoIndex: 0, // 현재 촬영 중인 사진 번호 (1부터 시작)
+            overlayImageSrc: null,
+            jesusOverlay1,
+            jesusOverlay2,
+            boscoOverlay1,
+            boscoOverlay2,
         }
     },
     created() {
@@ -100,6 +116,10 @@ export default {
             this.columns = table.split('x')[1];
         }
         this.images = this.$store.getters.getImages;
+        
+        // 현재 촬영할 사진 번호 설정 (이미 촬영된 사진 개수 + 1)
+        this.currentPhotoIndex = this.getImageLen + 1;
+        this.updateOverlayImage();
 
         if (this.getImageLen >= 8) this.$store.commit('setNext', true);
         else if (this.getImageLen >= 6) this.$store.commit('setNext', true);
@@ -240,7 +260,7 @@ export default {
             }
         },
 
-        takePhoto() {
+        async takePhoto() {
             if (!this.isPhotoTaken) {
                 this.isPhotoTaken = true;
             } else return;
@@ -249,14 +269,58 @@ export default {
             const canvas = this.$refs.canvas;
             const video = this.$refs.camera;
             
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
+            // 2-2 프레임인 경우 230:272 비율로 crop
+            if (this.is22Frame) {
+                const videoAspect = video.videoWidth / video.videoHeight; // 16:9 ≈ 1.778
+                const targetAspect = 272 / 230; // 약 1.183
+                
+                // video가 더 넓으므로 양옆을 잘라야 함
+                const cropWidth = video.videoHeight * targetAspect;
+                const cropX = (video.videoWidth - cropWidth) / 2;
+                
+                canvas.width = cropWidth;
+                canvas.height = video.videoHeight;
+                
+                // 촬영된 사진도 반전하여 저장 (양옆 crop)
+                context.save();
+                context.scale(-1, 1);
+                context.drawImage(video, cropX, 0, cropWidth, video.videoHeight, -canvas.width, 0, canvas.width, canvas.height);
+                context.restore();
+            } else {
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                
+                // 촬영된 사진도 반전하여 저장
+                context.save();
+                context.scale(-1, 1);
+                context.drawImage(video, -canvas.width, 0, canvas.width, canvas.height);
+                context.restore();
+            }
             
-            // 촬영된 사진도 반전하여 저장
-            context.save();
-            context.scale(-1, 1);
-            context.drawImage(video, -canvas.width, 0, canvas.width, canvas.height);
-            context.restore();
+            // 오버레이 이미지가 있으면 그 위에 그리기
+            if (this.overlayImageSrc) {
+                await new Promise((resolve, reject) => {
+                    const overlayImg = new Image();
+                    overlayImg.crossOrigin = 'anonymous';
+                    
+                    overlayImg.onload = () => {
+                        try {
+                            // canvas 전체에 오버레이 이미지 그리기
+                            context.drawImage(overlayImg, 0, 0, canvas.width, canvas.height);
+                        } catch (error) {
+                            console.error('오버레이 이미지 그리기 오류:', error);
+                        }
+                        resolve();
+                    };
+                    
+                    overlayImg.onerror = (error) => {
+                        console.error('오버레이 이미지 로드 실패:', error);
+                        resolve(); // 실패해도 계속 진행
+                    };
+                    
+                    overlayImg.src = this.overlayImageSrc;
+                });
+            }
             
             // 사진 저장 후 연속 촬영 처리
             this.$nextTick(() => {
@@ -265,6 +329,10 @@ export default {
                 
                 // 이미지 저장 후 길이 확인
                 this.$nextTick(() => {
+                    // 다음 사진 번호 업데이트
+                    this.currentPhotoIndex = this.getImageLen + 1;
+                    this.updateOverlayImage();
+                    
                     // 8장 미만이면 자동으로 다음 카운트다운 시작
                     if (this.getImageLen < 8) {
                         setTimeout(() => {
@@ -307,11 +375,39 @@ export default {
             this.$delete(this.images, target);
             this.$store.commit('setImages', this.images);
         },
+        
+        updateOverlayImage() {
+            // 2-2 프레임이고 인물이 선택된 경우에만 오버레이 표시
+            if (!this.is22Frame) {
+                this.overlayImageSrc = null;
+                return;
+            }
+            
+            const selectedCharacter = this.$store.getters.getSelectedCharacter;
+            // selectedCharacter가 null이거나 없으면 오버레이 표시 안 함
+            if (!selectedCharacter || selectedCharacter === 'none') {
+                this.overlayImageSrc = null;
+                return;
+            }
+            
+            // 1, 5번째 사진: _1.png
+            // 3, 7번째 사진: _2.png
+            if (this.currentPhotoIndex === 1 || this.currentPhotoIndex === 5) {
+                this.overlayImageSrc = selectedCharacter === 'jesus' ? this.jesusOverlay1 : this.boscoOverlay1;
+            } else if (this.currentPhotoIndex === 3 || this.currentPhotoIndex === 7) {
+                this.overlayImageSrc = selectedCharacter === 'jesus' ? this.jesusOverlay2 : this.boscoOverlay2;
+            } else {
+                this.overlayImageSrc = null;
+            }
+        },
 
     },
     computed: {
         getImageLen() {
             return Object.keys(this.images).length;
+        },
+        is22Frame() {
+            return parseInt(this.rows) === 2 && parseInt(this.columns) === 2;
         },
     },
     watch: {
@@ -378,6 +474,26 @@ export default {
     object-fit: contain;
     border-radius: 15px;
     min-height: 400px;
+    
+    // 2-2 프레임일 때 230:272 비율로 양옆 crop
+    &.camera-22-frame {
+        object-fit: cover;
+        aspect-ratio: 272 / 230; // 가로:세로 비율
+        width: 100%;
+        height: 100%;
+    }
+}
+
+.character-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    pointer-events: none;
+    z-index: 10;
+    border-radius: 15px;
 }
 
 .camera-mirror {

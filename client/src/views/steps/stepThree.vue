@@ -175,8 +175,8 @@ export default {
     }
     
     &.selected {
-        border-color: #ff6b9d;
-        box-shadow: 0 0 0 2px #ff6b9d;
+        border-color: #1e3a8a;
+        box-shadow: 0 0 0 2px #1e3a8a;
     }
     
     img {
@@ -193,7 +193,7 @@ export default {
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    background: #ff6b9d;
+    background: #1e3a8a;
     color: white;
     display: flex;
     align-items: center;

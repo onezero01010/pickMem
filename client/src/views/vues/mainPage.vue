@@ -2,7 +2,7 @@
     <div class="main-page">
         <div class="content-container">
             <div class="title-container">
-                <h1 class="main-title">살레네컷</h1>
+                <h1 class="main-title">VIDES네컷</h1>
                 <p class="subtitle">무제한으로 원하는 모습을 찍고 꾸미세요!</p>
             </div>
             <div class="start-button-container">
@@ -35,7 +35,7 @@ export default {
     left: 0;
     width: 100%;
     min-height: 100vh;
-    background: linear-gradient(135deg, #e8d5ff 0%, #d4b3ff 100%);
+    background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -60,7 +60,7 @@ export default {
 .main-title {
     font-size: 48px;
     font-weight: bold;
-    color: #ff6b9d;
+    color: #1e3a8a;
     margin: 0 0 20px 0;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
 }
@@ -68,7 +68,7 @@ export default {
 .subtitle {
     font-size: 24px;
     font-weight: 600;
-    color: #8b5cf6;
+    color: #3b82f6;
     margin: 0;
 }
 
@@ -78,7 +78,7 @@ export default {
 
 .start-btn {
     padding: 16px 48px;
-    background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
     color: white;
     border: none;
     border-radius: 12px;
@@ -86,11 +86,11 @@ export default {
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
 
     &:hover {
         transform: translateY(-3px);
-        box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
+        box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
     }
 
     &:active {

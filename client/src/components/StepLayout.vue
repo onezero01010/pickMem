@@ -1,6 +1,6 @@
 <template>
     <div class="step-layout">
-        <h1 class="page-title">살레네컷</h1>
+        <h1 class="page-title">VIDES네컷</h1>
         <div class="content-container">
             <div v-if="showTitle" class="title-container">
                 <h2 class="section-title">{{ title }}</h2>
@@ -38,7 +38,7 @@ export default {
     left: 0;
     width: 100%;
     height: 100vh;
-    background: linear-gradient(135deg, #f9f4ff 0%, #f1e6ff 100%);
+    background: linear-gradient(135deg, #f0f9ff 0%, #e0f7fa 100%);
     padding: 40px 20px;
     overflow-y: auto;
     overflow-x: hidden;
@@ -47,7 +47,7 @@ export default {
 .page-title {
     font-size: 48px;
     font-weight: bold;
-    color: #ff6b9d;
+    color: #1e3a8a;
     margin: 0 auto 30px;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
     text-align: center;
@@ -55,7 +55,7 @@ export default {
 }
 
 .content-container {
-    background: white;
+    background: #F5F5F5;
     border-radius: 20px;
     padding: 40px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
@@ -72,7 +72,7 @@ export default {
 .section-title {
     font-size: 28px;
     font-weight: 600;
-    color: #8b5cf6;
+    color: #3b82f6;
     margin: 0 0 10px 0;
 }
 

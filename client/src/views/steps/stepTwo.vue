@@ -72,6 +72,7 @@ import jesusOverlay1 from '@/assets/design/2-2_jesus_1.png'
 import jesusOverlay2 from '@/assets/design/2-2_jesus_2.png'
 import boscoOverlay1 from '@/assets/design/2-2_bosco_1.png'
 import boscoOverlay2 from '@/assets/design/2-2_bosco_2.png'
+import cameraSound from '@/assets/sound/camera.mp3'
 
 export default {
     name: 'StepTwo',
@@ -95,7 +96,7 @@ export default {
             facingMode: 'user',
             stream: null,
             isCountdown: false,
-            countdown: 5,
+            countdown: 3,
             countdownInterval: null,
             isPaused: false,
             currentPhotoIndex: 0, // 현재 촬영 중인 사진 번호 (1부터 시작)
@@ -199,7 +200,7 @@ export default {
             }
             
             this.isCountdown = true;
-            this.countdown = 5;
+            this.countdown = 3;
             
             this.countdownInterval = setInterval(() => {
                 if (this.isPaused) {
@@ -223,7 +224,7 @@ export default {
                 this.countdownInterval = null;
             }
             this.isCountdown = false;
-            this.countdown = 5;
+            this.countdown = 3;
         },
         
         instantCapture() {
@@ -264,6 +265,12 @@ export default {
             if (!this.isPhotoTaken) {
                 this.isPhotoTaken = true;
             } else return;
+
+            // 사진 촬영 소리 재생
+            const audio = new Audio(cameraSound);
+            audio.play().catch(error => {
+                console.error('사운드 재생 실패:', error);
+            });
 
             const context = this.$refs.canvas.getContext('2d');
             const canvas = this.$refs.canvas;
@@ -534,7 +541,7 @@ export default {
 }
 
 .btn-instant {
-    background: #ff6b9d;
+    background: #1e3a8a;
     color: white;
     padding: 15px 30px;
     font-size: 18px;
@@ -542,11 +549,11 @@ export default {
     border: none;
     cursor: pointer;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(255, 107, 157, 0.4);
+        box-shadow: 0 4px 15px rgba(30, 58, 138, 0.4);
     
     &:hover {
         transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(255, 107, 157, 0.6);
+        box-shadow: 0 6px 20px rgba(30, 58, 138, 0.6);
     }
 }
 
@@ -574,14 +581,14 @@ export default {
 }
 
 .btn-photo {
-    background: #ff6b9d;
+    background: #1e3a8a;
     color: white;
 }
 
 .btn-mirror,
 .btn-switch,
 .btn-restart {
-    background: #8b5cf6;
+    background: #3b82f6;
     color: white;
 }
 
@@ -615,7 +622,7 @@ export default {
     &:hover {
         transform: translateY(-3px);
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-        border-color: #8b5cf6;
+        border-color: #3b82f6;
     }
     
     img {

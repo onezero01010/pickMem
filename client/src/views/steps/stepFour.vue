@@ -32,24 +32,16 @@
                                 <span class="frame-option-label">기본 프레임</span>
                             </div>
                             <div 
-                                :class="{ 'selected': frameType === 'snow' }" 
+                                v-for="videsFrame in availableVidesFrames" 
+                                :key="videsFrame.id"
+                                :class="{ 'selected': frameType === videsFrame.id }" 
                                 class="frame-option-item"
-                                @click="selectFrameType('snow')"
+                                @click="selectFrameType(videsFrame.id, videsFrame.imagePath)"
                             >
-                                <div class="frame-option-preview snow-frame">
-                                    <img :src="getSnowImage()" alt="Snow background" />
+                                <div class="frame-option-preview vides-frame">
+                                    <img :src="videsFrame.imagePath" :alt="videsFrame.name" />
                                 </div>
-                                <span class="frame-option-label">눈 배경</span>
-                            </div>
-                            <div 
-                                :class="{ 'selected': frameType === 'red' }" 
-                                class="frame-option-item"
-                                @click="selectFrameType('red')"
-                            >
-                                <div class="frame-option-preview red-frame">
-                                    <img :src="getRedImage()" alt="Red background" />
-                                </div>
-                                <span class="frame-option-label">빨간 배경</span>
+                                <span class="frame-option-label">{{ videsFrame.name }}</span>
                             </div>
                         </div>
                     </div>
@@ -96,6 +88,20 @@ import redImage from '@/assets/design/red.png'
 import snowImage22 from '@/assets/design/2-2_snow.png'
 import redImage22 from '@/assets/design/2-2_red.png'
 
+// 1x4 프레임들
+import rainbow1x4 from '@/assets/design_vides/rainbow.png'
+import logo1x4 from '@/assets/design_vides/logo.png'
+import vadoio1x4 from '@/assets/design_vides/vadoio.png'
+import love1x4 from '@/assets/design_vides/love.png'
+import ism1x4 from '@/assets/design_vides/ism.png'
+
+// 2x2 프레임들
+import rainbow2x2 from '@/assets/design_vides/2-2_rainbow.png'
+import logo2x2 from '@/assets/design_vides/2-2_logo.png'
+import vadoio2x2 from '@/assets/design_vides/2-2_vadoio.png'
+import love2x2 from '@/assets/design_vides/2-2_love.png'
+import ism2x2 from '@/assets/design_vides/2-2_ism.png'
+
 export default {
     name: 'stepFour',
     components: {
@@ -117,6 +123,21 @@ export default {
             redImage: redImage,
             snowImage22: snowImage22,
             redImage22: redImage22,
+            videsFrames1x4: [
+                { id: 'vides-rainbow-1x4', name: 'Rainbow', imagePath: rainbow1x4 },
+                { id: 'vides-logo-1x4', name: 'Logo', imagePath: logo1x4 },
+                { id: 'vides-vadoio-1x4', name: 'Vadoio', imagePath: vadoio1x4 },
+                { id: 'vides-love-1x4', name: 'Love', imagePath: love1x4 },
+                { id: 'vides-ism-1x4', name: 'Ism', imagePath: ism1x4 },
+            ],
+            videsFrames2x2: [
+                { id: 'vides-rainbow-2x2', name: 'Rainbow', imagePath: rainbow2x2 },
+                { id: 'vides-logo-2x2', name: 'Logo', imagePath: logo2x2 },
+                { id: 'vides-vadoio-2x2', name: 'Vadoio', imagePath: vadoio2x2 },
+                { id: 'vides-love-2x2', name: 'Love', imagePath: love2x2 },
+                { id: 'vides-ism-2x2', name: 'Ism', imagePath: ism2x2 },
+            ],
+            selectedVidesFramePath: null,
             canvasHeight: null,
             canvasWidth: null,
             canvas: null,
@@ -183,6 +204,14 @@ export default {
                     await this.setSnowBackground();
                 } else if (this.frameType === 'red') {
                     await this.setRedBackground();
+                } else if (this.frameType.startsWith('vides-')) {
+                    // vides 프레임 복원
+                    const availableFrames = (this.columns === 2 && this.rows === 2) ? this.videsFrames2x2 : this.videsFrames1x4;
+                    const savedFrame = availableFrames.find(f => f.id === this.frameType);
+                    if (savedFrame) {
+                        this.selectedVidesFramePath = savedFrame.imagePath;
+                        await this.setVidesFrameBackground(savedFrame.imagePath);
+                    }
                 }
             } else if ((this.frame === '4x1' || (this.columns === 4 && this.rows === 1)) && this.useSnowBackground) {
                 // 하위 호환성: 기존 useSnowBackground가 true면 snow로 설정
@@ -221,7 +250,7 @@ export default {
                 this.$refs.deco.style['z-index'] = 1;
                 this.$refs.deco.style['opacity'] = 1;
         },
-        async selectFrameType(type) {
+        async selectFrameType(type, imagePath = null) {
             this.frameType = type;
             
             // 하위 호환성을 위해 useSnowBackground도 업데이트
@@ -231,8 +260,13 @@ export default {
                 await this.setSnowBackground();
             } else if (type === 'red') {
                 await this.setRedBackground();
+            } else if (type.startsWith('vides-')) {
+                // vides 프레임 선택
+                this.selectedVidesFramePath = imagePath;
+                await this.setVidesFrameBackground(imagePath);
             } else {
                 // 기본 프레임으로 복원 - 배경 이미지 제거
+                this.selectedVidesFramePath = null;
                 this.canvas.setBackgroundImage(null, () => {
                     this.canvas.backgroundColor = '#FFF';
                     this.targetColor = '#FFF';
@@ -306,6 +340,45 @@ export default {
                 fabric.Image.fromURL(imageSrc, (img) => {
                     if (!img) {
                         console.error('Red background 이미지 로드 실패');
+                        this.canvas.backgroundColor = '#FFF';
+                        this.canvas.renderAll();
+                        resolve();
+                        return;
+                    }
+                    
+                    // canvas 크기에 맞게 이미지 스케일링 (비율 유지)
+                    const canvasWidth = this.canvas.width;
+                    const canvasHeight = this.canvas.height;
+                    const imgWidth = img.width;
+                    const imgHeight = img.height;
+                    
+                    // cover 방식: canvas를 완전히 채우도록 스케일
+                    const scaleX = canvasWidth / imgWidth;
+                    const scaleY = canvasHeight / imgHeight;
+                    const scale = Math.max(scaleX, scaleY);
+                    
+                    img.scale(scale);
+                    img.set({
+                        left: 0,
+                        top: 0,
+                        originX: 'left',
+                        originY: 'top'
+                    });
+                    
+                    this.canvas.setBackgroundImage(img, () => {
+                        this.canvas.renderAll();
+                        resolve();
+                    });
+                }, {
+                    crossOrigin: 'anonymous'
+                });
+            });
+        },
+        async setVidesFrameBackground(imagePath) {
+            return new Promise((resolve, reject) => {
+                fabric.Image.fromURL(imagePath, (img) => {
+                    if (!img) {
+                        console.error('Vides frame 이미지 로드 실패');
                         this.canvas.backgroundColor = '#FFF';
                         this.canvas.renderAll();
                         resolve();
@@ -456,8 +529,8 @@ export default {
                 const ctx = exportCanvas.getContext('2d');
                 
                 // 배경색/패턴 그리기
-                // snow 또는 red 배경이 선택된 경우 canvas의 backgroundImage 사용
-                if (this.frameType === 'snow' || this.useSnowBackground || this.frameType === 'red') {
+                // snow, red, 또는 vides 프레임이 선택된 경우 canvas의 backgroundImage 사용
+                if (this.frameType === 'snow' || this.useSnowBackground || this.frameType === 'red' || this.frameType.startsWith('vides-')) {
                     const bgImage = this.canvas.backgroundImage;
                     if (bgImage && bgImage.getElement) {
                         // fabric.js의 backgroundImage가 있으면 직접 사용
@@ -491,7 +564,12 @@ export default {
                         }
                     } else {
                         // backgroundImage가 없으면 원본 이미지에서 로드 (fallback)
-                        const imageSrc = (this.frameType === 'snow' || this.useSnowBackground) ? this.getSnowImage() : this.getRedImage();
+                        let imageSrc;
+                        if (this.frameType.startsWith('vides-') && this.selectedVidesFramePath) {
+                            imageSrc = this.selectedVidesFramePath;
+                        } else {
+                            imageSrc = (this.frameType === 'snow' || this.useSnowBackground) ? this.getSnowImage() : this.getRedImage();
+                        }
                         const img = new Image();
                         img.crossOrigin = 'anonymous';
                         await new Promise((resolve, reject) => {
@@ -763,6 +841,14 @@ export default {
     computed: {
         getContentHeight() {
             return window.screen.availHeight;
+        },
+        availableVidesFrames() {
+            // 현재 프레임 레이아웃에 맞는 vides 프레임들 반환
+            if (this.columns === 2 && this.rows === 2) {
+                return this.videsFrames2x2;
+            } else {
+                return this.videsFrames1x4;
+            }
         }
     },
 }
@@ -849,9 +935,9 @@ export default {
     }
 
     &.selected {
-        border-color: #8b5cf6;
-        background: #f3e8ff;
-        box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.3);
+        border-color: #3b82f6;
+        background: #e0f2fe;
+        box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
     }
 }
 
@@ -881,6 +967,14 @@ export default {
     }
 
     &.red-frame {
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+    }
+
+    &.vides-frame {
         img {
             width: 100%;
             height: 100%;
@@ -922,7 +1016,7 @@ export default {
 
     &:focus {
         outline: none;
-        border-color: #8b5cf6;
+        border-color: #3b82f6;
     }
 
     &::placeholder {
@@ -933,7 +1027,7 @@ export default {
 .apply-btn {
     width: 100%;
     padding: 12px 24px;
-    background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
     color: white;
     border: none;
     border-radius: 10px;
@@ -941,11 +1035,11 @@ export default {
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
 
     &:hover {
         transform: translateY(-2px);
-        box-shadow: 0 6px 16px rgba(139, 92, 246, 0.4);
+        box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4);
     }
 
     &:active {
@@ -969,7 +1063,7 @@ export default {
     }
 
     &::-webkit-scrollbar-thumb {
-        background: #8b5cf6;
+        background: #3b82f6;
         border-radius: 10px;
     }
 }
@@ -1031,7 +1125,7 @@ export default {
 .theme-title {
     font-size: 18px;
     font-weight: 600;
-    color: #8b5cf6;
+    color: #3b82f6;
     margin-bottom: 15px;
     margin-top: 20px;
 
@@ -1063,8 +1157,8 @@ export default {
     }
 
     &.selected {
-        border: 3px solid #8b5cf6;
-        box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.3);
+        border: 3px solid #3b82f6;
+        box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
     }
 }
 
@@ -1097,12 +1191,12 @@ export default {
     &:hover {
         transform: translateY(-2px);
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-        border-color: #8b5cf6;
+        border-color: #3b82f6;
     }
 
     &.selected {
-        border-color: #8b5cf6;
-        box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.3);
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
     }
 }
 

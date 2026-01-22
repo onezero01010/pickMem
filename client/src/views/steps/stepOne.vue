@@ -82,8 +82,8 @@ export default {
     align-items: center;
     
     &.selected {
-        background: #f3e8ff;
-        box-shadow: 0 0 0 3px #8b5cf6;
+        background: #e0f2fe;
+        box-shadow: 0 0 0 3px #3b82f6;
     }
 }
 

@@ -12,15 +12,6 @@
             <div class="or-divider">OR</div>
             <div 
                 class="character-option" 
-                :class="{ 'selected': selectedCharacters.includes('jesus') }" 
-                @click="toggleCharacter('jesus')"
-            >
-                <img class="character-preview" src="@/assets/design/jesus.png" alt="예수" draggable="false">
-                <span class="character-label">예수</span>
-            </div>
-            <div class="or-divider">OR</div>
-            <div 
-                class="character-option" 
                 :class="{ 'selected': selectedCharacters.includes('none') }" 
                 @click="toggleCharacter('none')"
             >
@@ -110,8 +101,8 @@ export default {
     }
     
     &.selected {
-        background: #f3e8ff;
-        box-shadow: 0 0 0 3px #8b5cf6;
+        background: #e0f2fe;
+        box-shadow: 0 0 0 3px #3b82f6;
     }
 }
 

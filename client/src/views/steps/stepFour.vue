@@ -869,7 +869,7 @@ export default {
     align-items: center;
     min-width: 0;
     max-width: 100%;
-    min-height: 600px;
+    min-height: 400px;
 }
 
 .canvas-wrapper {

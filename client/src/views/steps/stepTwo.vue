@@ -438,15 +438,15 @@ export default {
 <style lang="scss" scoped>
 .loading-container {
     text-align: center;
-    padding: 100px 20px;
+    padding: 60px 20px;
     color: #666;
 }
 
 .phone-frame {
     position: relative;
     width: 100%;
-    max-width: 1000px;
-    margin: 0 auto 30px;
+    max-width: 800px;
+    margin: 0 auto 20px;
     background: #000;
     border-radius: 25px;
     padding: 10px;
@@ -523,11 +523,11 @@ export default {
 }
 
 .countdown-number {
-    font-size: 120px;
+    font-size: 100px;
     font-weight: bold;
     color: white;
     text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
-    margin-bottom: 30px;
+    margin-bottom: 25px;
     animation: pulse 0.5s ease-in-out;
 }
 

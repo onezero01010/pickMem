@@ -40,49 +40,49 @@ export default {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 40px 20px;
+    padding: 20px 15px;
 }
 
 .content-container {
     background: white;
     border-radius: 20px;
-    padding: 60px 40px;
+    padding: 40px 30px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-    max-width: 800px;
+    max-width: min(calc(100vw - 40px), 700px);
     width: 100%;
     text-align: center;
 }
 
 .title-container {
-    margin-bottom: 40px;
+    margin-bottom: 30px;
 }
 
 .main-title {
-    font-size: 48px;
+    font-size: 40px;
     font-weight: bold;
     color: #1e3a8a;
-    margin: 0 0 20px 0;
+    margin: 0 0 15px 0;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .subtitle {
-    font-size: 24px;
+    font-size: 20px;
     font-weight: 600;
     color: #3b82f6;
     margin: 0;
 }
 
 .start-button-container {
-    margin-top: 30px;
+    margin-top: 25px;
 }
 
 .start-btn {
-    padding: 16px 48px;
+    padding: 14px 40px;
     background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
     color: white;
     border: none;
     border-radius: 12px;
-    font-size: 20px;
+    font-size: 18px;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;

@@ -83,14 +83,14 @@ export default {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 30px;
+    gap: 20px;
 }
 
 .character-option {
     flex: 1;
     cursor: pointer;
     border-radius: 15px;
-    padding: 20px;
+    padding: 15px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -108,7 +108,7 @@ export default {
 
 .character-preview {
     width: 100%;
-    max-width: 200px;
+    max-width: 160px;
     height: auto;
     object-fit: contain;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -121,7 +121,7 @@ export default {
     }
     
     &.no-character {
-        height: 200px;
+        height: 160px;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -129,7 +129,7 @@ export default {
         border: 2px dashed #d1d5db;
         
         .no-character-text {
-            font-size: 18px;
+            font-size: 16px;
             font-weight: 600;
             color: #6b7280;
         }
@@ -137,17 +137,17 @@ export default {
 }
 
 .character-label {
-    font-size: 16px;
+    font-size: 14px;
     font-weight: 600;
     color: #333;
-    margin-top: 15px;
+    margin-top: 12px;
 }
 
 .or-divider {
-    font-size: 24px;
+    font-size: 20px;
     font-weight: bold;
     color: #333;
-    padding: 0 20px;
+    padding: 0 15px;
 }
 
 .selected-info {

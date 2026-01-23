@@ -10,7 +10,7 @@
                 <div class="title-container">
                     <h2 class="section-title">사진 촬영</h2>
                 </div>
-                <div class="phone-frame">
+                <div class="phone-frame" :class="{'phone-frame-22': is22Frame}">
                     <div class="phone-notch"></div>
                     <div class="camera-content">
                         <video v-show="!isPhotoTaken" ref="camera" :class="{'camera-mirror': isMirrored, 'camera-22-frame': is22Frame}" autoplay></video>
@@ -451,6 +451,11 @@ export default {
     border-radius: 20px;
     padding: 8px;
     box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+    
+    // 2x2 프레임일 때 크기 조정
+    &:has(.camera-22-frame) {
+        max-width: 520px;
+    }
 }
 
 .phone-notch {
@@ -463,6 +468,11 @@ export default {
     background: #000;
     border-radius: 0 0 15px 15px;
     z-index: 10;
+    
+    // 2x2 프레임일 때 노치 크기 조정
+    .phone-frame:has(.camera-22-frame) & {
+        width: 320px;
+    }
 }
 
 .camera-content {
@@ -488,6 +498,8 @@ export default {
         aspect-ratio: 272 / 230; // 가로:세로 비율
         width: 100%;
         height: 100%;
+        max-width: 500px;
+        max-height: 422px;
     }
 }
 

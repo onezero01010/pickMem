@@ -51,17 +51,18 @@ export default {
     margin: 0 auto 30px;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
     text-align: center;
-    max-width: 1500px;
+    max-width: min(calc(100vw - 80px), 1400px);
 }
 
 .content-container {
     background: #F5F5F5;
     border-radius: 20px;
-    padding: 40px;
+    padding: 30px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-    max-width: 1500px;
+    max-width: min(calc(100vw - 80px), 1400px);
     margin: 0 auto;
     margin-top: 0;
+    box-sizing: border-box;
 }
 
 .title-container {

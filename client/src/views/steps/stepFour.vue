@@ -857,7 +857,7 @@ export default {
 <style lang="scss" scoped>
 .main-content {
     display: flex;
-    gap: 30px;
+    gap: 20px;
     align-items: flex-start;
 }
 
@@ -890,11 +890,11 @@ export default {
 }
 
 .sidebar-section {
-    width: 350px;
+    width: 300px;
     flex: 0 0 auto;
     background: #f9fafb;
     border-radius: 15px;
-    padding: 20px;
+    padding: 15px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
@@ -1309,24 +1309,16 @@ img {
 
 @media (max-width: 1200px) {
     .main-content {
-        flex-direction: column;
-        align-items: center;
-        gap: 20px;
+        gap: 15px;
     }
 
     .canvas-section {
         margin-top: 20px;
-        width: 100%;
-        max-width: 100%;
-        flex: none;
     }
 
     .sidebar-section {
-        width: 100%;
-        max-width: 100%;
-        margin-right: 0;
-        margin-top: 600px;
-        flex: none;
+        width: 280px;
+        margin-top: 0;
     }
 }
 
@@ -1363,27 +1355,18 @@ img {
     }   
 }
 
-/* 세로로 긴 화면 (높이가 넓은 화면보다 긴 경우) */
+/* 세로로 긴 화면 (높이가 넓은 화면보다 긴 경우) - 양옆 배치 유지 */
 @media (max-height: 900px) and (orientation: portrait) {
     .main-content {
-        flex-direction: column;
-        align-items: center;
         gap: 15px;
     }
 
     .canvas-section {
         margin-top: 10px;
-        width: 100%;
-        max-width: 100%;
-        flex: none;
     }
 
     .sidebar-section {
-        width: 100%;
-        max-width: 100%;
-        margin-right: 0;
-        margin-top: 600px;
-        flex: none;
+        margin-top: 0;
     }
 }
 

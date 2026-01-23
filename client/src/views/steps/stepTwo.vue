@@ -453,7 +453,7 @@ export default {
     box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
     
     // 2x2 프레임일 때 크기 조정
-    &:has(.camera-22-frame) {
+    &.phone-frame-22 {
         max-width: 520px;
     }
 }
@@ -470,7 +470,7 @@ export default {
     z-index: 10;
     
     // 2x2 프레임일 때 노치 크기 조정
-    .phone-frame:has(.camera-22-frame) & {
+    .phone-frame-22 & {
         width: 320px;
     }
 }

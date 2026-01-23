@@ -39,27 +39,27 @@ export default {
     width: 100%;
     height: 100vh;
     background: linear-gradient(135deg, #f0f9ff 0%, #e0f7fa 100%);
-    padding: 20px 15px;
+    padding: 15px 10px;
     overflow-y: auto;
     overflow-x: hidden;
 }
 
 .page-title {
-    font-size: 36px;
+    font-size: 28px;
     font-weight: bold;
     color: #1e3a8a;
-    margin: 0 auto 20px;
+    margin: 0 auto 15px;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
     text-align: center;
-    max-width: min(calc(100vw - 80px), 1400px);
+    max-width: min(calc(100vw - 60px), 1400px);
 }
 
 .content-container {
     background: #F5F5F5;
-    border-radius: 20px;
-    padding: 20px;
+    border-radius: 15px;
+    padding: 15px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-    max-width: min(calc(100vw - 80px), 1400px);
+    max-width: min(calc(100vw - 60px), 1400px);
     margin: 0 auto;
     margin-top: 0;
     box-sizing: border-box;
@@ -67,18 +67,18 @@ export default {
 
 .title-container {
     text-align: center;
-    margin-bottom: 20px;
+    margin-bottom: 15px;
 }
 
 .section-title {
-    font-size: 24px;
+    font-size: 20px;
     font-weight: 600;
     color: #3b82f6;
-    margin: 0 0 8px 0;
+    margin: 0 0 6px 0;
 }
 
 .instruction-text {
-    font-size: 14px;
+    font-size: 12px;
     color: #666;
     margin: 0;
 }

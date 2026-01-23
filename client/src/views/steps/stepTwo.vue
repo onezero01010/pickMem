@@ -448,8 +448,8 @@ export default {
     max-width: 800px;
     margin: 0 auto 20px;
     background: #000;
-    border-radius: 25px;
-    padding: 10px;
+    border-radius: 20px;
+    padding: 8px;
     box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
 }
 
@@ -479,8 +479,8 @@ export default {
     height: auto;
     display: block;
     object-fit: contain;
-    border-radius: 15px;
-    min-height: 400px;
+    border-radius: 12px;
+    min-height: 350px;
     
     // 2-2 프레임일 때 230:272 비율로 양옆 crop
     &.camera-22-frame {
@@ -523,11 +523,11 @@ export default {
 }
 
 .countdown-number {
-    font-size: 100px;
+    font-size: 80px;
     font-weight: bold;
     color: white;
     text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
-    margin-bottom: 25px;
+    margin-bottom: 20px;
     animation: pulse 0.5s ease-in-out;
 }
 
@@ -543,9 +543,9 @@ export default {
 .btn-instant {
     background: #1e3a8a;
     color: white;
-    padding: 15px 30px;
-    font-size: 18px;
-    border-radius: 30px;
+    padding: 12px 25px;
+    font-size: 16px;
+    border-radius: 25px;
     border: none;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -560,16 +560,16 @@ export default {
 .control-buttons {
     display: flex;
     justify-content: center;
-    gap: 10px;
-    margin-bottom: 20px;
+    gap: 8px;
+    margin-bottom: 15px;
     flex-wrap: wrap;
 }
 
 .btn {
-    padding: 12px 24px;
+    padding: 10px 20px;
     border: none;
-    border-radius: 25px;
-    font-size: 16px;
+    border-radius: 20px;
+    font-size: 14px;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -594,25 +594,25 @@ export default {
 
 .photo-counter {
     text-align: center;
-    font-size: 18px;
+    font-size: 16px;
     font-weight: 600;
     color: #666;
-    margin-bottom: 20px;
+    margin-bottom: 15px;
 }
 
 .photo-gallery {
     display: flex;
     justify-content: center;
-    gap: 15px;
+    gap: 12px;
     flex-wrap: wrap;
-    margin-top: 30px;
-    padding: 20px 0;
+    margin-top: 20px;
+    padding: 15px 0;
 }
 
 .photo-thumbnail {
-    width: 120px;
-    height: 120px;
-    border-radius: 10px;
+    width: 100px;
+    height: 100px;
+    border-radius: 8px;
     overflow: hidden;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
     border: 2px solid #e0e0e0;

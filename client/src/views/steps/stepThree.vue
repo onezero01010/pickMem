@@ -156,8 +156,8 @@ export default {
 .photo-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 15px;
-    margin-top: 20px;
+    gap: 12px;
+    margin-top: 15px;
 }
 
 .photo-item {

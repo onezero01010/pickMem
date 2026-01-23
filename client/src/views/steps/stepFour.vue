@@ -857,14 +857,14 @@ export default {
 <style lang="scss" scoped>
 .main-content {
     display: flex;
-    gap: 20px;
+    gap: 15px;
     align-items: flex-start;
 }
 
 .canvas-section {
     flex: 1;
     display: flex;
-    margin-top: 20px;
+    margin-top: 10px;
     flex-direction: column;
     align-items: center;
     min-width: 0;
@@ -875,7 +875,7 @@ export default {
     position: relative;
     display: flex;
     justify-content: center;
-    margin-bottom: 20px;
+    margin-bottom: 15px;
 }
 
 .help-text {
@@ -890,32 +890,32 @@ export default {
 }
 
 .sidebar-section {
-    width: 300px;
+    width: 280px;
     flex: 0 0 auto;
     background: #f9fafb;
-    border-radius: 15px;
-    padding: 15px;
+    border-radius: 12px;
+    padding: 12px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .frame-section {
-    margin-bottom: 30px;
-    padding-bottom: 20px;
+    margin-bottom: 15px;
+    padding-bottom: 12px;
     border-bottom: 2px solid #e5e7eb;
 }
 
 .frame-title {
-    font-size: 18px;
+    font-size: 14px;
     font-weight: 600;
     color: #374151;
     text-align: center;
-    margin: 0 0 15px 0;
+    margin: 0 0 10px 0;
 }
 
 .frame-options {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 15px;
+    gap: 10px;
 }
 
 .frame-option-item {
@@ -923,8 +923,8 @@ export default {
     flex-direction: column;
     align-items: center;
     cursor: pointer;
-    padding: 10px;
-    border-radius: 10px;
+    padding: 6px;
+    border-radius: 8px;
     transition: all 0.3s ease;
     border: 2px solid transparent;
 
@@ -943,8 +943,8 @@ export default {
 .frame-option-preview {
     width: 100%;
     aspect-ratio: 1;
-    border-radius: 8px;
-    margin-bottom: 8px;
+    border-radius: 6px;
+    margin-bottom: 5px;
     overflow: hidden;
     display: flex;
     align-items: center;
@@ -983,33 +983,33 @@ export default {
 }
 
 .frame-option-label {
-    font-size: 14px;
+    font-size: 11px;
     font-weight: 500;
     color: #374151;
 }
 
 .message-section {
-    margin-bottom: 30px;
-    padding-bottom: 20px;
+    margin-bottom: 15px;
+    padding-bottom: 12px;
     border-bottom: 2px solid #e5e7eb;
 }
 
 .message-title {
-    font-size: 18px;
+    font-size: 14px;
     font-weight: 600;
     color: #374151;
     text-align: center;
-    margin: 0 0 15px 0;
+    margin: 0 0 10px 0;
 }
 
 .message-input {
     width: 100%;
-    padding: 12px 16px;
+    padding: 8px 12px;
     border: 1px solid #d1d5db;
-    border-radius: 10px;
-    font-size: 16px;
+    border-radius: 8px;
+    font-size: 14px;
     color: #374151;
-    margin-bottom: 15px;
+    margin-bottom: 12px;
     box-sizing: border-box;
     transition: border-color 0.3s ease;
 
@@ -1025,12 +1025,12 @@ export default {
 
 .apply-btn {
     width: 100%;
-    padding: 12px 24px;
+    padding: 10px 20px;
     background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
     color: white;
     border: none;
     border-radius: 10px;
-    font-size: 16px;
+    font-size: 14px;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -1047,10 +1047,10 @@ export default {
 }
 
 .sidebar-content {
-    max-height: 700px;
+    max-height: 400px;
     overflow-y: auto;
     padding-right: 5px;
-    margin-bottom: 20px;
+    margin-bottom: 12px;
 
     &::-webkit-scrollbar {
         width: 6px;
@@ -1068,21 +1068,21 @@ export default {
 }
 
 .save-section {
-    margin-top: 20px;
-    padding-top: 20px;
+    margin-top: 12px;
+    padding-top: 12px;
     border-top: 2px solid #e5e7eb;
     display: flex;
-    gap: 10px;
+    gap: 8px;
 }
 
 .save-btn {
     flex: 1;
-    padding: 14px 24px;
+    padding: 10px 18px;
     background: linear-gradient(135deg, #10b981 0%, #059669 100%);
     color: white;
     border: none;
-    border-radius: 10px;
-    font-size: 16px;
+    border-radius: 8px;
+    font-size: 13px;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -1100,12 +1100,12 @@ export default {
 
 .home-btn {
     flex: 1;
-    padding: 14px 24px;
+    padding: 10px 18px;
     background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
     color: white;
     border: none;
-    border-radius: 10px;
-    font-size: 16px;
+    border-radius: 8px;
+    font-size: 13px;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -1122,11 +1122,11 @@ export default {
 }
 
 .theme-title {
-    font-size: 18px;
+    font-size: 15px;
     font-weight: 600;
     color: #3b82f6;
-    margin-bottom: 15px;
-    margin-top: 20px;
+    margin-bottom: 12px;
+    margin-top: 15px;
 
     &:first-child {
         margin-top: 0;
@@ -1136,8 +1136,8 @@ export default {
 .color-grid {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
-    gap: 10px;
-    margin-bottom: 20px;
+    gap: 8px;
+    margin-bottom: 15px;
 }
 
 .color-item {
@@ -1171,8 +1171,8 @@ export default {
 .pattern-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-    margin-bottom: 30px;
+    gap: 8px;
+    margin-bottom: 20px;
 }
 
 .pattern-item {

@@ -69,14 +69,14 @@ export default {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 30px;
+    gap: 15px;
 }
 
 .frame-option {
     flex: 1;
     cursor: pointer;
-    border-radius: 15px;
-    padding: 20px;
+    border-radius: 12px;
+    padding: 12px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -96,7 +96,7 @@ export default {
 
 .frame-preview {
     width: 100%;
-    max-width: 200px;
+    max-width: 140px;
     height: auto;
     object-fit: contain;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -109,15 +109,15 @@ export default {
     }
     
     &.frame-preview-large {
-        max-width: 400px;
+        max-width: 280px;
     }
 }
 
 .or-divider {
-    font-size: 24px;
+    font-size: 18px;
     font-weight: bold;
     color: #333;
-    padding: 0 20px;
+    padding: 0 12px;
 }
 
 @media (max-width: 768px) {

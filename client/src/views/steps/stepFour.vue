@@ -859,6 +859,7 @@ export default {
     display: flex;
     gap: 15px;
     align-items: flex-start;
+    min-height: 650px;
 }
 
 .canvas-section {
@@ -1310,6 +1311,7 @@ img {
 @media (max-width: 1200px) {
     .main-content {
         gap: 15px;
+        min-height: 600px;
     }
 
     .canvas-section {
@@ -1329,6 +1331,7 @@ img {
 
     .main-content {
         gap: 15px;
+        min-height: auto;
     }
 
     .canvas-section {
